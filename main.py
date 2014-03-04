@@ -44,33 +44,26 @@ class Player(pygame.sprite.Sprite):
         self.angle = math.degrees(math.atan2(self.rect.center[0]-mousePosition[0], self.rect.center[1]-mousePosition[1]))
         self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
 
-    def draw(self,screen):
-        screen.blit(self.image, (self.rect.x,self.rect.y))
 
 class Lazer(pygame.sprite.Sprite):
-    angle = 0
-    speed = 1
-    class move():
-        x = 0
-        y = 0
+    speed = 5
 
     def __init__(self, angle, center):
         pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("lazer.tga")
+        self.rect = pygame.rect.Rect(center,self.image.get_size())
         self.angle = angle
-        self.image = pygame.image.load("lazer.png").convert()
-        self.rect = self.image.get_rect()
-        self.rect.center = center
-        self.move.x =  self.speed * math.cos( math.radians(angle) )
-        self.move.y = -self.speed * math.sin( math.radians(angle) )
-        # print("afterinit",self.rect,"x",self.move.x,"y",self.move.y)
+        self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
+        self.speedy = -self.speed*math.sin(math.radians(self.angle+90))
+
 
 
     def update(self):
-        print(self.move.x,self.move.y)
-        self.rect.x,self.rect.y = self.rect.x+self.move.x,self.rect.y+self.move.y
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
 
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.x,self.rect.y))
+    # def draw(self, screen):
+        
         
 
 class Game(object):
