@@ -1,12 +1,3 @@
-"""
- Sample Python/Pygame Programs
- Simpson College Computer Science
- http://programarcadegames.com/
- http://simpson.edu/computer-science/
-
- Explanation video: http://youtu.be/O4Y5KrNgP_c
-"""
-
 import pygame
 import random
 import math
@@ -43,16 +34,42 @@ class Player(pygame.sprite.Sprite):
         # distance moved in 1 frame, try changing it to 5
         if key[pygame.K_s] and self.rect.center[1] < SCREEN_HEIGHT:# down key
             self.rect.y += self.speed # move down
-        elif key[pygame.K_w] and self.rect.center[1] > 0: # up key
+        if key[pygame.K_w] and self.rect.center[1] > 0: # up key
             self.rect.y -= self.speed # move up
         if key[pygame.K_d] and self.rect.center[0] < SCREEN_WIDTH: # right key
             self.rect.x += self.speed # move right
-        elif key[pygame.K_a] and self.rect.center[0] > 0: # left key
+        if key[pygame.K_a] and self.rect.center[0] > 0: # left key
             self.rect.x -= self.speed # move left
+
         self.angle = math.degrees(math.atan2(self.rect.center[0]-mousePosition[0], self.rect.center[1]-mousePosition[1]))
         self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
 
     def draw(self,screen):
+        screen.blit(self.image, (self.rect.x,self.rect.y))
+
+class Lazer(pygame.sprite.Sprite):
+    angle = 0
+    speed = 1
+    class move():
+        x = 0
+        y = 0
+
+    def __init__(self, angle, center):
+        pygame.sprite.Sprite.__init__(self)
+        self.angle = angle
+        self.image = pygame.image.load("lazer.png").convert()
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.move.x =  self.speed * math.cos( math.radians(angle) )
+        self.move.y = -self.speed * math.sin( math.radians(angle) )
+        # print("afterinit",self.rect,"x",self.move.x,"y",self.move.y)
+
+
+    def update(self):
+        print(self.move.x,self.move.y)
+        self.rect.x,self.rect.y = self.rect.x+self.move.x,self.rect.y+self.move.y
+
+    def draw(self, screen):
         screen.blit(self.image, (self.rect.x,self.rect.y))
         
 
@@ -84,9 +101,10 @@ class Game(object):
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN:
+                self.all_sprites_list.add(self.fire())
                 if self.game_over:
                     self.__init__()
-        
+
         return False
 
     def run_logic(self):
@@ -106,6 +124,10 @@ class Game(object):
         self.all_sprites_list.draw(screen)
             
         pygame.display.flip()
+
+    def fire(self):
+        self.lazer = Lazer(self.player.angle, self.player.rect.center)
+        return self.lazer
 
 def rot_center(image, rect, angle):
         """rotate an image while keeping its center"""
