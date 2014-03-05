@@ -1,12 +1,3 @@
-"""
- Sample Python/Pygame Programs
- Simpson College Computer Science
- http://programarcadegames.com/
- http://simpson.edu/computer-science/
-
- Explanation video: http://youtu.be/O4Y5KrNgP_c
-"""
-
 import pygame
 import random
 import math
@@ -31,42 +22,75 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.baseImage = pygame.image.load("ship.png").convert()
+        self.baseImage = pygame.image.load("ship.tga")
         self.rect = self.baseImage.get_rect()
         self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
-        self.baseImage.set_colorkey(BLACK)
 
     def update(self):
         """ Update the player location. """
         key = pygame.key.get_pressed()
         mousePosition = pygame.mouse.get_pos()
-        # distance moved in 1 frame, try changing it to 5
-        if key[pygame.K_s] and self.rect.center[1] < SCREEN_HEIGHT:# down key
+        if key[pygame.K_s] and self.rect.center[1] < SCREEN_HEIGHT: # down key
             self.rect.y += self.speed # move down
-        elif key[pygame.K_w] and self.rect.center[1] > 0: # up key
+        if key[pygame.K_w] and self.rect.center[1] > 0: # up key
             self.rect.y -= self.speed # move up
         if key[pygame.K_d] and self.rect.center[0] < SCREEN_WIDTH: # right key
             self.rect.x += self.speed # move right
-        elif key[pygame.K_a] and self.rect.center[0] > 0: # left key
+        if key[pygame.K_a] and self.rect.center[0] > 0: # left key
             self.rect.x -= self.speed # move left
+
         self.angle = math.degrees(math.atan2(self.rect.center[0]-mousePosition[0], self.rect.center[1]-mousePosition[1]))
         self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
 
-    def draw(self,screen):
-        screen.blit(self.image, (self.rect.x,self.rect.y))
-        
+
+class Lazer(pygame.sprite.Sprite):
+    speed = 5
+
+    def __init__(self, angle, center):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("lazer2.tga")
+        self.rect = pygame.rect.Rect(center,self.image.get_size())
+        self.speedx =  self.speed*math.cos(math.radians(angle+90))
+        self.speedy = -self.speed*math.sin(math.radians(angle+90))
+
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+
+class Asteroid(pygame.sprite.Sprite):
+
+    def __init__(self,playerPos):
+        pygame.sprite.Sprite.__init__(self)
+        self.baseImage = pygame.image.load("asteroid.tga")
+        self.where = random.randrange(1,5)
+        if self.where == 1:
+            self.center = [random.randrange(-300,0),random.randrange(-300,SCREEN_HEIGHT+300)]
+        elif self.where == 2:
+            self.center = [random.randrange(SCREEN_WIDTH,SCREEN_WIDTH+300),random.randrange(-300,SCREEN_HEIGHT+300)]
+        elif self.where == 3:
+            self.center = [random.randrange(-300,SCREEN_WIDTH+300),random.randrange(-300,0)]
+        elif self.where == 4:
+            self.center = [random.randrange(SCREEN_HEIGHT,SCREEN_HEIGHT+300),random.randrange(-300,SCREEN_HEIGHT+300)]
+        self.rect = pygame.rect.Rect(self.center,self.baseImage.get_size())
+        self.angle = random.randrange(80,120,5)/100*math.degrees(math.atan2(self.rect.center[0]-playerPos[0], self.rect.center[1]-playerPos[1]))
+        self.speed = random.triangular(1.0, 4.0)
+        self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
+        self.speedy = -self.speed*math.sin(math.radians(self.angle+90))
+        self.rotaSpeed = random.randrange(0,7)
+        self.angle = random.randrange(0,360)
+
+    def update(self):
+        self.angle += self.rotaSpeed
+        self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+
 
 class Game(object):
     """ This class represents an instance of the game. If we need to
         reset the game we'd just need to create a new instance of this
         class. """
 
-    # --- Class attributes. 
-    # In this case, all the data we need 
-    # to run our game.
-    
-    # Sprite lists
-    # block_list = None
     all_sprites_list = None
     player = None
     
@@ -74,29 +98,17 @@ class Game(object):
     game_over = False
     # score = 0
     
-    # --- Class methods
-    # Set up the game
     def __init__(self):
         # self.score = 0
         self.game_over = False
-        
-        # Create sprite lists
-        # self.block_list = pygame.sprite.Group()
         self.all_sprites_list = pygame.sprite.Group()
         
-        # Create the block sprites
-        # for i in range(50):
-        #     block = Block()
-        
-        #     block.rect.x = random.randrange(SCREEN_WIDTH)
-        #     block.rect.y = random.randrange(-300, SCREEN_HEIGHT)
-            
-        #     self.block_list.add(block)
-        #     self.all_sprites_list.add(block)
-        
-        # Create the player
         self.player = Player()
         self.all_sprites_list.add(self.player)
+
+        for i in range(10):
+            self.asteroid = Asteroid(self.player.rect.center)
+            self.all_sprites_list.add(self.asteroid)
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -106,9 +118,14 @@ class Game(object):
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN:
+                self.all_sprites_list.add(self.fire())
                 if self.game_over:
                     self.__init__()
-        
+        key = pygame.key.get_pressed()
+        if key[pygame.K_r]:
+            self.__init__()
+
+
         return False
 
     def run_logic(self):
@@ -120,33 +137,18 @@ class Game(object):
             # Move all the sprites
             self.all_sprites_list.update()
             
-            # # See if the player block has collided with anything.
-            # blocks_hit_list = pygame.sprite.spritecollide(self.player, self.block_list, True)  
-         
-            # # Check the list of collisions.
-            # for block in blocks_hit_list:
-            #     self.score += 1
-            #     print( self.score )
-                
-            # if len(self.block_list) == 0:
-            #     self.game_over = True
                 
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
-        screen.fill(WHITE)
+        screen.fill(BLACK)
         
-        # if self.game_over:
-        #     #font = pygame.font.Font("Serif", 25)
-        #     font = pygame.font.SysFont("serif", 25)
-        #     text = font.render("Game Over, click to restart", True, BLACK)
-        #     center_x = (SCREEN_WIDTH // 2) - (text.get_width() // 2)
-        #     center_y = (SCREEN_HEIGHT // 2) - (text.get_height() // 2)
-        #     screen.blit(text, [center_x, center_y])
-        
-        #if not self.game_over:
         self.all_sprites_list.draw(screen)
             
         pygame.display.flip()
+
+    def fire(self):
+        self.lazer = Lazer(self.player.angle, self.player.rect.center)
+        return self.lazer
 
 def rot_center(image, rect, angle):
         """rotate an image while keeping its center"""
@@ -159,7 +161,7 @@ def main():
     """ Main program function. """
     # Initialize Pygame and set up the window
     pygame.init()
-     
+
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size)
     
