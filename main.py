@@ -22,10 +22,10 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.baseImage = pygame.image.load("ship.png").convert()
+        self.baseImage = pygame.image.load("ship.tga")
         self.rect = self.baseImage.get_rect()
         self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
-        self.baseImage.set_colorkey(BLACK)
+        # self.baseImage.set_colorkey(BLACK)
 
     def update(self):
         """ Update the player location. """
@@ -50,21 +50,16 @@ class Lazer(pygame.sprite.Sprite):
 
     def __init__(self, angle, center):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("lazer.tga")
+        self.image = pygame.image.load("lazer2.tga")
         self.rect = pygame.rect.Rect(center,self.image.get_size())
         self.angle = angle
         self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
         self.speedy = -self.speed*math.sin(math.radians(self.angle+90))
 
-
-
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
 
-    # def draw(self, screen):
-        
-        
 
 class Game(object):
     """ This class represents an instance of the game. If we need to
@@ -112,7 +107,7 @@ class Game(object):
                 
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
-        screen.fill(WHITE)
+        screen.fill(BLACK)
         
         self.all_sprites_list.draw(screen)
             
@@ -133,7 +128,7 @@ def main():
     """ Main program function. """
     # Initialize Pygame and set up the window
     pygame.init()
-     
+
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size)
     
