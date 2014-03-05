@@ -25,14 +25,12 @@ class Player(pygame.sprite.Sprite):
         self.baseImage = pygame.image.load("ship.tga")
         self.rect = self.baseImage.get_rect()
         self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
-        # self.baseImage.set_colorkey(BLACK)
 
     def update(self):
         """ Update the player location. """
         key = pygame.key.get_pressed()
         mousePosition = pygame.mouse.get_pos()
-        # distance moved in 1 frame, try changing it to 5
-        if key[pygame.K_s] and self.rect.center[1] < SCREEN_HEIGHT:# down key
+        if key[pygame.K_s] and self.rect.center[1] < SCREEN_HEIGHT: # down key
             self.rect.y += self.speed # move down
         if key[pygame.K_w] and self.rect.center[1] > 0: # up key
             self.rect.y -= self.speed # move up
@@ -60,12 +58,11 @@ class Lazer(pygame.sprite.Sprite):
         self.rect.y += self.speedy
 
 class Asteroid(pygame.sprite.Sprite):
-    speed = 3
 
     def __init__(self,playerPos):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("asteroid.tga")
-        self.where = random.randrange(1,4)
+        self.baseImage = pygame.image.load("asteroid.tga")
+        self.where = random.randrange(1,5)
         if self.where == 1:
             self.center = [random.randrange(-300,0),random.randrange(-300,SCREEN_HEIGHT+300)]
         elif self.where == 2:
@@ -74,12 +71,17 @@ class Asteroid(pygame.sprite.Sprite):
             self.center = [random.randrange(-300,SCREEN_WIDTH+300),random.randrange(-300,0)]
         elif self.where == 4:
             self.center = [random.randrange(SCREEN_HEIGHT,SCREEN_HEIGHT+300),random.randrange(-300,SCREEN_HEIGHT+300)]
-        self.rect = pygame.rect.Rect(self.center,self.image.get_size())
+        self.rect = pygame.rect.Rect(self.center,self.baseImage.get_size())
         self.angle = random.randrange(80,120,5)/100*math.degrees(math.atan2(self.rect.center[0]-playerPos[0], self.rect.center[1]-playerPos[1]))
+        self.speed = random.triangular(1.0, 4.0)
         self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
         self.speedy = -self.speed*math.sin(math.radians(self.angle+90))
+        self.rotaSpeed = random.randrange(0,7)
+        self.angle = random.randrange(0,360)
 
     def update(self):
+        self.angle += self.rotaSpeed
+        self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
         self.rect.x += self.speedx
         self.rect.y += self.speedy
 
@@ -119,6 +121,10 @@ class Game(object):
                 self.all_sprites_list.add(self.fire())
                 if self.game_over:
                     self.__init__()
+        key = pygame.key.get_pressed()
+        if key[pygame.K_r]:
+            self.__init__()
+
 
         return False
 
