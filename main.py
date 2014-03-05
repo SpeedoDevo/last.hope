@@ -48,7 +48,7 @@ class Lazer(pygame.sprite.Sprite):
 
     def __init__(self, angle, center):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("lazer2.tga")
+        self.image = pygame.image.load("lazer.tga")
         self.rect = pygame.rect.Rect(center,self.image.get_size())
         self.speedx =  self.speed*math.cos(math.radians(angle+90))
         self.speedy = -self.speed*math.sin(math.radians(angle+90))
