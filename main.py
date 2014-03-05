@@ -59,6 +59,30 @@ class Lazer(pygame.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
 
+class Asteroid(pygame.sprite.Sprite):
+    speed = 3
+
+    def __init__(self,playerPos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("asteroid.tga")
+        self.where = random.randrange(1,4)
+        if self.where == 1:
+            self.center = [random.randrange(-300,0),random.randrange(-300,SCREEN_HEIGHT+300)]
+        elif self.where == 2:
+            self.center = [random.randrange(SCREEN_WIDTH,SCREEN_WIDTH+300),random.randrange(-300,SCREEN_HEIGHT+300)]
+        elif self.where == 3:
+            self.center = [random.randrange(-300,SCREEN_WIDTH+300),random.randrange(-300,0)]
+        elif self.where == 4:
+            self.center = [random.randrange(SCREEN_HEIGHT,SCREEN_HEIGHT+300),random.randrange(-300,SCREEN_HEIGHT+300)]
+        self.rect = pygame.rect.Rect(self.center,self.image.get_size())
+        self.angle = random.randrange(80,120,5)/100*math.degrees(math.atan2(self.rect.center[0]-playerPos[0], self.rect.center[1]-playerPos[1]))
+        self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
+        self.speedy = -self.speed*math.sin(math.radians(self.angle+90))
+
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+
 
 class Game(object):
     """ This class represents an instance of the game. If we need to
@@ -79,6 +103,10 @@ class Game(object):
         
         self.player = Player()
         self.all_sprites_list.add(self.player)
+
+        for i in range(10):
+            self.asteroid = Asteroid(self.player.rect.center)
+            self.all_sprites_list.add(self.asteroid)
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
