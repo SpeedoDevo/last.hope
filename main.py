@@ -82,6 +82,14 @@ class Asteroid(pygame.sprite.Sprite):
     def update(self):
         self.angle += self.rotaSpeed
         self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
+        if self.rect.left>SCREEN_WIDTH:
+            self.rect.right=0
+        if self.rect.top>SCREEN_HEIGHT:
+            self.rect.bottom=0
+        if self.rect.right<0:
+            self.rect.left=SCREEN_WIDTH
+        if self.rect.bottom<0:
+            self.rect.top=SCREEN_HEIGHT
         self.rect.x += self.speedx
         self.rect.y += self.speedy
 
