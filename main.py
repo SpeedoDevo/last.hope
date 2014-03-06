@@ -1,61 +1,10 @@
 import pygame
 import random
 import math
+import player
+import helper
+from constants import (SCREEN_WIDTH, SCREEN_HEIGHT)
 
-#--- Global constants ---
-BLACK    = (   0,   0,   0)
-WHITE    = ( 255, 255, 255)
-GREEN    = (   0, 255,   0)
-RED      = ( 255,   0,   0)
-
-SCREEN_WIDTH  = 700
-SCREEN_HEIGHT = 500
-
-# --- Classes ---
-
-
-class Player(pygame.sprite.Sprite):
-    """ This class represents the player. """
-    angle = 1
-    speed = 3
-
-    def __init__(self):
-        self.lives = 3
-        pygame.sprite.Sprite.__init__(self)
-        self.baseImage = pygame.image.load("ship.tga")
-        self.rect = self.baseImage.get_rect()
-        self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
-
-    def update(self):
-        """ Update the player location. """
-        key = pygame.key.get_pressed()
-        mousePosition = pygame.mouse.get_pos()
-        if key[pygame.K_s] and self.rect.center[1] < SCREEN_HEIGHT: # down key
-            self.rect.y += self.speed # move down
-        if key[pygame.K_w] and self.rect.center[1] > 0: # up key
-            self.rect.y -= self.speed # move up
-        if key[pygame.K_d] and self.rect.center[0] < SCREEN_WIDTH: # right key
-            self.rect.x += self.speed # move right
-        if key[pygame.K_a] and self.rect.center[0] > 0: # left key
-            self.rect.x -= self.speed # move left
-
-        self.angle = math.degrees(math.atan2(self.rect.center[0]-mousePosition[0], self.rect.center[1]-mousePosition[1]))
-        self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
-
-
-class Lazer(pygame.sprite.Sprite):
-    speed = 5
-
-    def __init__(self, angle, center):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("lazer.tga")
-        self.rect = pygame.rect.Rect(center,self.image.get_size())
-        self.speedx =  self.speed*math.cos(math.radians(angle+90))
-        self.speedy = -self.speed*math.sin(math.radians(angle+90))
-
-    def update(self):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
 
 class Asteroid(pygame.sprite.Sprite):
 
@@ -95,7 +44,7 @@ class Asteroid(pygame.sprite.Sprite):
 
     def update(self):
         self.angle += self.rotaSpeed
-        self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
+        self.image,self.rect = helper.rot_center(self.baseImage, self.rect, self.angle)
         if self.rect.left>SCREEN_WIDTH:
             self.rect.right=0
         if self.rect.top>SCREEN_HEIGHT:
@@ -138,8 +87,6 @@ class Background(pygame.sprite.Sprite):
         if self.rect.y < -3000:
             self.rect.y = -1500
 
-
-
 class Game(object):
     """ This class represents an instance of the game. If we need to
         reset the game we'd just need to create a new instance of this
@@ -161,11 +108,11 @@ class Game(object):
         self.allSprites = pygame.sprite.Group()
         self.lazers = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
-        self.player = Player()
+        self.player = player.Player()
         self.allSprites.add(self.player)
         self.background = Background()
 
-        for i in range(10):
+        for i in range(5):
             self.asteroid = Asteroid(self.player.rect.center,0)
             self.allSprites.add(self.asteroid)
             self.enemies.add(self.asteroid)
@@ -258,15 +205,8 @@ class Game(object):
         pygame.display.flip()
 
     def fire(self):
-        self.lazer = Lazer(self.player.angle, self.player.rect.center)
-        return self.lazer
-
-def rot_center(image, rect, angle):
-        """rotate an image while keeping its center"""
-        rot_image = pygame.transform.rotate(image, angle)
-        rot_rect = rot_image.get_rect(center=rect.center)
-        return rot_image,rot_rect
-    
+        self.lazer = player.Lazer(self.player.angle, self.player.rect.center)
+        return self.lazer 
         
 def main():
     """ Main program function. """
