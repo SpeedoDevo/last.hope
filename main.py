@@ -99,7 +99,9 @@ class Game(object):
         reset the game we'd just need to create a new instance of this
         class. """
 
-    all_sprites_list = None
+    allSprites = None
+    enemies = None
+    lazers = None
     player = None
     
     # Other data    
@@ -109,14 +111,17 @@ class Game(object):
     def __init__(self):
         # self.score = 0
         self.game_over = False
-        self.all_sprites_list = pygame.sprite.Group()
+        self.allSprites = pygame.sprite.Group()
+        self.lazers = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
         
         self.player = Player()
-        self.all_sprites_list.add(self.player)
+        self.allSprites.add(self.player)
 
         for i in range(10):
             self.asteroid = Asteroid(self.player.rect.center)
-            self.all_sprites_list.add(self.asteroid)
+            self.allSprites.add(self.asteroid)
+            self.enemies.add(self.asteroid)
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -126,7 +131,9 @@ class Game(object):
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.all_sprites_list.add(self.fire())
+                self.lazer = self.fire()
+                self.allSprites.add(self.lazer)
+                self.lazers.add(self.lazer)
                 if self.game_over:
                     self.__init__()
         key = pygame.key.get_pressed()
@@ -142,15 +149,24 @@ class Game(object):
         updates positions and checks for collisions.
         """
         if not self.game_over:
-            # Move all the sprites
-            self.all_sprites_list.update()
+            for lazer in self.lazers:
+
+                # See if it hit a block
+                enemyHits = pygame.sprite.spritecollide(lazer, self.enemies, True)
+                
+                # For each block hisst, remove the bullet and add to the score
+                for enemy in enemyHits:
+                    self.lazers.remove(lazer)
+                    self.allSprites.remove(lazer)
+                    
+            self.allSprites.update()
             
                 
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
         screen.fill(BLACK)
         
-        self.all_sprites_list.draw(screen)
+        self.allSprites.draw(screen)
             
         pygame.display.flip()
 
