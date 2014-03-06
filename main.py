@@ -20,7 +20,7 @@ class Player(pygame.sprite.Sprite):
     speed = 3
 
     def __init__(self):
-        self.lives = 3 
+        self.lives = 3
         pygame.sprite.Sprite.__init__(self)
         self.baseImage = pygame.image.load("ship.tga")
         self.rect = self.baseImage.get_rect()
@@ -32,12 +32,16 @@ class Player(pygame.sprite.Sprite):
         mousePosition = pygame.mouse.get_pos()
         if key[pygame.K_s] and self.rect.center[1] < SCREEN_HEIGHT: # down key
             self.rect.y += self.speed # move down
+            Game.backgroundy += -1
         if key[pygame.K_w] and self.rect.center[1] > 0: # up key
             self.rect.y -= self.speed # move up
+            Game.backgroundy += 1
         if key[pygame.K_d] and self.rect.center[0] < SCREEN_WIDTH: # right key
             self.rect.x += self.speed # move right
+            Game.backgroundx += -1
         if key[pygame.K_a] and self.rect.center[0] > 0: # left key
             self.rect.x -= self.speed # move left
+            Game.backgroundy += +1
 
         self.angle = math.degrees(math.atan2(self.rect.center[0]-mousePosition[0], self.rect.center[1]-mousePosition[1]))
         self.image,self.rect = rot_center(self.baseImage, self.rect, self.angle)
@@ -112,7 +116,9 @@ class Game(object):
     """ This class represents an instance of the game. If we need to
         reset the game we'd just need to create a new instance of this
         class. """
-
+    background = pygame.image.load('background.gif')
+    backgroundx = -1500
+    backgroundy = -1500
     allSprites = None
     enemies = None
     lazers = None
@@ -129,7 +135,6 @@ class Game(object):
         self.allSprites = pygame.sprite.Group()
         self.lazers = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
-        
         self.player = Player()
         self.allSprites.add(self.player)
 
@@ -203,20 +208,28 @@ class Game(object):
                     
             if self.paused:
             # Display some text
-             #   font = pygame.font.Font(None, 36)
-             #   text = font.render("paused", 1, (10, 10, 10))
-              #  textpos = text.get_rect()
-              #  textpos.centerx = self.screen.get_rect().centerx
-             #  self.screen.blit(text, textpos)
-                # pygame.time.wait(100)
+                font = pygame.font.Font(None, 36)
+                text = font.render("paused", 1, (10, 10, 10))
+                textpos = text.get_rect()
+                textpos.centerx = self.background.get_rect().centerx
+                self.background.blit(text, textpos)
+                pygame.time.wait(10)
                 pass
             else:
                 self.allSprites.update()
             
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
-        screen.fill(BLACK)
-        
+        self.backgroundx -= 3
+        if self.backgroundx > 1000:
+            self.backgroundx = -1500
+        if self.backgroundy > 1000:
+            self.backgroundy = -1500
+        if self.backgroundx < -3000:
+            self.backgroundx = -1500
+        if self.backgroundy < -3000:
+            self.backgroundy = -1500
+        screen.blit(self.background, (self.backgroundx,self.backgroundy))
         self.allSprites.draw(screen)
             
         pygame.display.flip()
