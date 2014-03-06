@@ -83,8 +83,10 @@ class Asteroid(pygame.sprite.Sprite):
             self.baseImage = pygame.image.load("asteroid21.tga")
         if size == 1 or size == 2 or size == 3 or size == 4:
             self.center = pos
+            self.angle = random.randrange(0,360)
         self.rect = pygame.rect.Rect(self.center,self.baseImage.get_size())
-        self.angle = random.randrange(80,120,5)/100*math.degrees(math.atan2(self.rect.center[0]-pos[0], self.rect.center[1]-pos[1]))
+        if size == 0:
+            self.angle = random.randrange(80,120)/100*math.degrees(math.atan2(self.rect.center[0]-pos[0], self.rect.center[1]-pos[1]))
         self.speed = random.triangular(1.0, 4.0)
         self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
         self.speedy = -self.speed*math.sin(math.radians(self.angle+90))
@@ -184,6 +186,10 @@ class Game(object):
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)                       
 
+            # playerHits = pygame.sprite.spritecollide(self.player, self.enemies, False)
+            # print(playerHits, not playerHits)
+            # if playerHits:
+            #     self.allSprites.remove(self.player)
                     
             self.allSprites.update()
             
