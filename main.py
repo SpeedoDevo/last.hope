@@ -16,11 +16,12 @@ SCREEN_HEIGHT = 500
 
 class Player(pygame.sprite.Sprite):
     """ This class represents the player. """
-
+    
     angle = 1
     speed = 3
 
     def __init__(self):
+        self.lives = 3 
         pygame.sprite.Sprite.__init__(self)
         self.baseImage = pygame.image.load("ship.tga")
         self.rect = self.baseImage.get_rect()
@@ -151,7 +152,7 @@ class Game(object):
         key = pygame.key.get_pressed()
         if key[pygame.K_r]:
             self.__init__()
-
+            
 
         return False
 
@@ -184,6 +185,17 @@ class Game(object):
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)                       
 
+            # see's if the player collides with the astriod
+            playerhits = pygame.sprite.spritecollide(self.player, self.enemies,True)
+            # checks if list is empty 
+            if  playerhits:
+                print(self.player.lives)
+                self.player.lives -= 1
+                if self.player.lives < 1:
+                # if so removes self.player from the list 
+                    self.allSprites.remove(self.player)
+                
+                
                     
             self.allSprites.update()
             
