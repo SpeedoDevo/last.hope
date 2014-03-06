@@ -114,18 +114,21 @@ class Background(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = -1500
         self.rect.y = -1500
+        self.frameNum = 0
 
     def update(self):
-        key = pygame.key.get_pressed()
-        if key[pygame.K_s]:
-            self.rect.y -= 1
-        if key[pygame.K_w]:
-            self.rect.y += 1
-        if key[pygame.K_d]:
-            self.rect.x -= 1
-        if key[pygame.K_a]:
-            self.rect.y += 1
-        self.rect.x -= 2
+        self.frameNum += 1
+        if self.frameNum % 3 == 0:
+            key = pygame.key.get_pressed()
+            if key[pygame.K_s]:
+                self.rect.y -= 1
+            if key[pygame.K_w]:
+                self.rect.y += 1
+            if key[pygame.K_d]:
+                self.rect.x -= 1
+            if key[pygame.K_a]:
+                self.rect.y += 1
+            self.rect.x -= 2
         if self.rect.x > 1000:
             self.rect.x = -1500
         if self.rect.y > 1000:
