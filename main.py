@@ -119,12 +119,13 @@ class Game(object):
     player = None
     
     # Other data    
-    game_over = False
+    gameOver = False
     # score = 0
     
     def __init__(self):
         # self.score = 0
-        self.game_over = False
+        self.paused = False
+        self.gameOver = False
         self.allSprites = pygame.sprite.Group()
         self.lazers = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
@@ -148,9 +149,14 @@ class Game(object):
                 self.lazer = self.fire()
                 self.allSprites.add(self.lazer)
                 self.lazers.add(self.lazer)
-                if self.game_over:
+                if self.gameOver:
                     self.__init__()
         key = pygame.key.get_pressed()
+        if key[pygame.K_ESCAPE]:
+            if self.paused == True:
+                self.paused = False
+            else:
+                self.paused = True
         if key[pygame.K_r]:
             self.__init__()
 
@@ -161,7 +167,7 @@ class Game(object):
         This method is run each time through the frame. It
         updates positions and checks for collisions.
         """
-        if not self.game_over:
+        if not self.gameOver:
             for lazer in self.lazers:
 
                 # See if it hit a block
@@ -194,9 +200,19 @@ class Game(object):
                 if self.player.lives < 1:
                 # if so removes self.player from the list 
                     self.allSprites.remove(self.player)
-            self.allSprites.update()
+                    
+            if self.paused:
+            # Display some text
+             #   font = pygame.font.Font(None, 36)
+             #   text = font.render("paused", 1, (10, 10, 10))
+              #  textpos = text.get_rect()
+              #  textpos.centerx = self.screen.get_rect().centerx
+             #  self.screen.blit(text, textpos)
+                # pygame.time.wait(100)
+                pass
+            else:
+                self.allSprites.update()
             
-                
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
         screen.fill(BLACK)
