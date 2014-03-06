@@ -151,6 +151,8 @@ class Game(object):
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN:
+                shoot = pygame.mixer.Sound("shoot.ogg")
+                pygame.mixer.Sound.play(shoot)
                 self.lazer = self.fire()
                 self.allSprites.add(self.lazer)
                 self.lazers.add(self.lazer)
@@ -200,6 +202,8 @@ class Game(object):
             playerhits = pygame.sprite.spritecollide(self.player, self.enemies,True)
             # checks if list is empty 
             if playerhits:
+                deathsound = pygame.mixer.Sound("death.ogg")
+                pygame.mixer.Sound.play(deathsound)
                 self.player.lives -= 1
                 print(self.player.lives)
                 if self.player.lives < 1:
@@ -262,7 +266,8 @@ def main():
     
     # Create an instance of the Game class
     game = Game()
-
+    backgroundsong = pygame.mixer.Sound("background.ogg")
+    pygame.mixer.Sound.play(backgroundsong)
     # Main game loop
     while not done:
         
