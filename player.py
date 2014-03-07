@@ -31,6 +31,9 @@ class Player(pygame.sprite.Sprite):
         self.angle = math.degrees(math.atan2(self.rect.center[0]-mousePosition[0], self.rect.center[1]-mousePosition[1]))
         self.image,self.rect = helper.rot_center(self.baseImage, self.rect, self.angle)
 
+    def fire(self):
+        return Lazer(self.angle, self.rect.center)
+
 
 class Lazer(pygame.sprite.Sprite):
     speed = 5
