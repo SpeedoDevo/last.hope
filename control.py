@@ -91,6 +91,7 @@ class Game(object):
         self.background = Background()
         self.lives = LivesDisplay(self.player.lives)
         self.pauseScreen = TextOverlay("paused")
+        self.gameOverScreen = TextOverlay("game over")
 
         for i in range(5):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
@@ -127,7 +128,7 @@ class Game(object):
         This method is run each time through the frame. It
         updates positions and checks for collisions.
         """
-        if not self.gameOver:
+        if not (self.gameOver or self.paused):
             for lazer in self.lazers:
 
                 # See if it hit a block
@@ -164,10 +165,9 @@ class Game(object):
                     self.gameOver = True
                     self.allSprites.remove(self.player)
                     
-            if not self.paused:
-                self.background.update()
-                self.lives.update()
-                self.allSprites.update()
+            self.background.update()
+            self.lives.update()
+            self.allSprites.update()
             
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
@@ -176,5 +176,7 @@ class Game(object):
         self.allSprites.draw(screen)
         if self.paused:
             self.pauseScreen.draw(screen)
+        if self.gameOver:
+            self.gameOverScreen.draw(screen)
         pygame.display.flip()
 
