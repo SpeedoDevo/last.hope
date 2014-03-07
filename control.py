@@ -1,7 +1,7 @@
 import pygame
 import player
 import enemies
-from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED)
+from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY)
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
@@ -35,11 +35,11 @@ class Background(pygame.sprite.Sprite):
             self.rect.y = -1500
 
 class TextOverlay(pygame.sprite.Sprite):
-    def __init__(self,string):
+    def __init__(self,string,color):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('image/textoverlay.tga')
         self.font = pygame.font.Font('image/langdon.otf', 70)
-        self.text = self.font.render(string, True, RED)
+        self.text = self.font.render(string, True, color)
         self.textrect = self.text.get_rect()
         self.textrect.center = (SCREEN_WIDTH/2,SCREEN_HEIGHT/2)
         self.image.blit(self.text,self.textrect)
@@ -90,8 +90,13 @@ class Game(object):
         self.allSprites.add(self.player)
         self.background = Background()
         self.lives = LivesDisplay(self.player.lives)
-        self.pauseScreen = TextOverlay("paused")
-        self.gameOverScreen = TextOverlay("game over")
+        self.pauseScreen = TextOverlay("paused", GREY)
+        self.gameOverScreen = TextOverlay("game over", RED)
+        self.winScreen = TextOverlay("victory", GREEN)
+        self.victory = False
+        self.shoot = pygame.mixer.Sound("sound/shoot.ogg")
+        self.deathSound = pygame.mixer.Sound("sound/death.ogg")
+
 
         for i in range(5):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
@@ -104,8 +109,7 @@ class Game(object):
 
         for event in pygame.event.get():
             if not (self.gameOver or self.paused) and event.type == pygame.MOUSEBUTTONDOWN:
-                shoot = pygame.mixer.Sound("sound/shoot.ogg")
-                pygame.mixer.Sound.play(shoot)
+                pygame.mixer.Sound.play(self.shoot)
                 self.lazer = self.player.fire()
                 self.allSprites.add(self.lazer)
                 self.lazers.add(self.lazer)
@@ -153,17 +157,19 @@ class Game(object):
                         self.enemies.add(self.asteroid)                       
 
             # see's if the player collides with the astriod
-            playerhits = pygame.sprite.spritecollide(self.player, self.enemies,True)
+            playerHit = pygame.sprite.spritecollide(self.player, self.enemies,True)
             # checks if list is empty 
-            if playerhits:
-                deathsound = pygame.mixer.Sound("sound/death.ogg")
-                pygame.mixer.Sound.play(deathsound)
+            if playerHit:
+                pygame.mixer.Sound.play(self.deathSound)
                 self.player.lives -= 1
                 self.lives.updateLives(self.player.lives)
                 if self.player.lives <= 0:
                 # if so removes self.player from the list
                     self.gameOver = True
                     self.allSprites.remove(self.player)
+
+            if not self.enemies:
+                self.victory = True
                     
             self.background.update()
             self.lives.update()
@@ -178,5 +184,7 @@ class Game(object):
             self.pauseScreen.draw(screen)
         if self.gameOver:
             self.gameOverScreen.draw(screen)
+        if self.victory:
+            self.winScreen.draw(screen)
         pygame.display.flip()
 
