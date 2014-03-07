@@ -35,7 +35,7 @@ def main():
         game.display_frame(screen)
         
         # Pause for the next frame
-        clock.tick(60)
+        clock.tick(70)
         
     # Close window and exit    
     pygame.quit()

@@ -33,6 +33,24 @@ class Background(pygame.sprite.Sprite):
         if self.rect.y < -3000:
             self.rect.y = -1500
 
+class LivesDisplay(pygame.sprite.Sprite):
+
+    def __init__(self,lives):
+        pygame.sprite.Sprite.__init__(self)
+        self.baseImage = pygame.image.load('lives.tga')
+        self.lives = lives
+
+    def updateLives(self,lives):
+        self.lives = lives
+
+    def update(self):
+        if self.lives < 0:
+            self.lives = 0
+        self.image = pygame.Surface((40*self.lives, 30))
+        self.image.blit(self.baseImage,(0,0,40*self.lives, 30))
+        self.rect = self.image.get_rect()
+        print(self.rect)
+
 class Game(object):
     """ This class represents an instance of the game. If we need to
         reset the game we'd just need to create a new instance of this
@@ -57,6 +75,7 @@ class Game(object):
         self.player = player.Player()
         self.allSprites.add(self.player)
         self.background = Background()
+        self.lives = LivesDisplay(self.player.lives)
 
         for i in range(5):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
@@ -125,8 +144,9 @@ class Game(object):
                 deathsound = pygame.mixer.Sound("death.ogg")
                 pygame.mixer.Sound.play(deathsound)
                 self.player.lives -= 1
+                self.lives.updateLives(self.player.lives)
                 print(self.player.lives)
-                if self.player.lives < 1:
+                if self.player.lives <= 0:
                 # if so removes self.player from the list 
                     self.allSprites.remove(self.player)
                     
@@ -141,11 +161,13 @@ class Game(object):
                 pass
             else:
                 self.background.update()
+                self.lives.update()
                 self.allSprites.update()
             
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
         screen.blit(self.background.image,self.background.rect)
+        screen.blit(self.lives.image,self.lives.rect)
         self.allSprites.draw(screen)
             
         pygame.display.flip()
