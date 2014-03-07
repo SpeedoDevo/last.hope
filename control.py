@@ -1,6 +1,7 @@
 import pygame
 import player
 import enemies
+from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED)
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
@@ -35,7 +36,16 @@ class Background(pygame.sprite.Sprite):
 
 class TextOverlay(pygame.sprite.Sprite):
     def __init__(self,string):
-        
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('image/textoverlay.tga')
+        self.font = pygame.font.Font('image/langdon.otf', 70)
+        self.text = self.font.render(string, True, RED)
+        self.textrect = self.text.get_rect()
+        self.textrect.center = (SCREEN_WIDTH/2,SCREEN_HEIGHT/2)
+        self.image.blit(self.text,self.textrect)
+
+    def draw(self,screen):
+        screen.blit(self.image,(0,0,SCREEN_WIDTH,SCREEN_HEIGHT))
 
 class LivesDisplay(pygame.sprite.Sprite):
 
@@ -80,6 +90,7 @@ class Game(object):
         self.allSprites.add(self.player)
         self.background = Background()
         self.lives = LivesDisplay(self.player.lives)
+        self.pauseScreen = TextOverlay("paused")
 
         for i in range(5):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
@@ -172,6 +183,7 @@ class Game(object):
         screen.blit(self.background.image,self.background.rect)
         screen.blit(self.lives.image,self.lives.rect)
         self.allSprites.draw(screen)
-            
+        if self.paused:
+            self.pauseScreen.draw(screen)
         pygame.display.flip()
 
