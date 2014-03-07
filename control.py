@@ -37,15 +37,33 @@ class Background(pygame.sprite.Sprite):
 class TextOverlay(pygame.sprite.Sprite):
     def __init__(self,string,color):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('image/textoverlay.tga')
+        self.baseImage = pygame.image.load('image/textoverlay.tga')
+        self.image = self.baseImage.copy()
         self.font = pygame.font.Font('image/langdon.otf', 70)
         self.text = self.font.render(string, True, color)
         self.textrect = self.text.get_rect()
         self.textrect.center = (SCREEN_WIDTH/2,SCREEN_HEIGHT/2)
         self.image.blit(self.text,self.textrect)
+        self.screenRect = (0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
+        if string == "paused":
+            self.frameNum = 0
+            self.isPaused = True
+        else:
+            self.isPaused = False
 
     def draw(self,screen):
-        screen.blit(self.image,(0,0,SCREEN_WIDTH,SCREEN_HEIGHT))
+        if self.isPaused:
+            self.frameNum += 1
+            print(self.frameNum % 70)
+            if (self.frameNum % 70) < 35:
+                screen.blit(self.image,self.screenRect)
+            else:
+                screen.blit(self.baseImage,self.screenRect)
+        else:
+            screen.blit(self.image,self.screenRect)
+
+    def resetCounter(self):
+        self.frameNum = 0
 
 class LivesDisplay(pygame.sprite.Sprite):
 
@@ -63,7 +81,6 @@ class LivesDisplay(pygame.sprite.Sprite):
         self.image = pygame.Surface((40*self.lives, 30))
         self.image.blit(self.baseImage,(0,0,40*self.lives, 30))
         self.rect = self.image.get_rect()
-        print(self.rect)
 
 class Game(object):
     """ This class represents an instance of the game. If we need to
@@ -122,6 +139,7 @@ class Game(object):
                     self.paused = False
                 else:
                     self.paused = True
+                    self.pauseScreen.resetCounter()
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
                 self.__init__()
 
