@@ -11,7 +11,7 @@ class Asteroid(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.size = size
         if size == 0:
-            self.baseImage = pygame.image.load("asteroid0.tga")
+            self.baseImage = pygame.image.load("image/asteroid0.tga")
             self.where = random.randrange(1,5)
             if self.where == 1:
                 self.center = [random.randrange(-300,0),random.randrange(-300,SCREEN_HEIGHT+300)]
@@ -22,13 +22,13 @@ class Asteroid(pygame.sprite.Sprite):
             elif self.where == 4:
                 self.center = [random.randrange(SCREEN_HEIGHT,SCREEN_HEIGHT+300),random.randrange(-300,SCREEN_HEIGHT+300)]
         if size == 1:
-            self.baseImage = pygame.image.load("asteroid10.tga")
+            self.baseImage = pygame.image.load("image/asteroid10.tga")
         if size == 2:
-            self.baseImage = pygame.image.load("asteroid11.tga")
+            self.baseImage = pygame.image.load("image/asteroid11.tga")
         if size == 3:
-            self.baseImage = pygame.image.load("asteroid20.tga")
+            self.baseImage = pygame.image.load("image/asteroid20.tga")
         if size == 4:
-            self.baseImage = pygame.image.load("asteroid21.tga")
+            self.baseImage = pygame.image.load("image/asteroid21.tga")
         if size == 1 or size == 2 or size == 3 or size == 4:
             self.center = pos
             self.angle = random.randrange(0,360)

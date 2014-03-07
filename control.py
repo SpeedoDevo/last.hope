@@ -5,7 +5,7 @@ import enemies
 class Background(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('background.gif')
+        self.image = pygame.image.load('image/background.gif')
         self.rect = self.image.get_rect()
         self.rect.x = -1500
         self.rect.y = -1500
@@ -37,7 +37,7 @@ class LivesDisplay(pygame.sprite.Sprite):
 
     def __init__(self,lives):
         pygame.sprite.Sprite.__init__(self)
-        self.baseImage = pygame.image.load('lives.tga')
+        self.baseImage = pygame.image.load('image/lives.tga')
         self.lives = lives
 
     def updateLives(self,lives):
@@ -90,7 +90,7 @@ class Game(object):
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.MOUSEBUTTONDOWN:
-                shoot = pygame.mixer.Sound("shoot.ogg")
+                shoot = pygame.mixer.Sound("sound/shoot.ogg")
                 pygame.mixer.Sound.play(shoot)
                 self.lazer = self.player.fire()
                 self.allSprites.add(self.lazer)
@@ -141,7 +141,7 @@ class Game(object):
             playerhits = pygame.sprite.spritecollide(self.player, self.enemies,True)
             # checks if list is empty 
             if playerhits:
-                deathsound = pygame.mixer.Sound("death.ogg")
+                deathsound = pygame.mixer.Sound("sound/death.ogg")
                 pygame.mixer.Sound.play(deathsound)
                 self.player.lives -= 1
                 self.lives.updateLives(self.player.lives)

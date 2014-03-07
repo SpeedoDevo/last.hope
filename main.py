@@ -20,7 +20,7 @@ def main():
     
     # Create an instance of the Game class
     game = control.Game()
-    backgroundsong = pygame.mixer.Sound("background.ogg")
+    backgroundsong = pygame.mixer.Sound("sound/background.ogg")
     pygame.mixer.Sound.play(backgroundsong)
     # Main game loop
     while not done:

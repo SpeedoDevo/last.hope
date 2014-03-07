@@ -11,7 +11,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         self.lives = 3
         pygame.sprite.Sprite.__init__(self)
-        self.baseImage = pygame.image.load("ship.tga")
+        self.baseImage = pygame.image.load("image/ship.tga")
         self.rect = self.baseImage.get_rect()
         self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
 
@@ -40,7 +40,7 @@ class Lazer(pygame.sprite.Sprite):
 
     def __init__(self, angle, center):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("lazer.tga")
+        self.image = pygame.image.load("image/lazer.tga")
         self.rect = pygame.rect.Rect(center,self.image.get_size())
         self.speedx =  self.speed*math.cos(math.radians(angle+90))
         self.speedy = -self.speed*math.sin(math.radians(angle+90))
