@@ -33,6 +33,10 @@ class Background(pygame.sprite.Sprite):
         if self.rect.y < -3000:
             self.rect.y = -1500
 
+class TextOverlay(pygame.sprite.Sprite):
+    def __init__(self,string):
+        
+
 class LivesDisplay(pygame.sprite.Sprite):
 
     def __init__(self,lives):
@@ -97,14 +101,13 @@ class Game(object):
                 self.lazers.add(self.lazer)
                 if self.gameOver:
                     self.__init__()
-        key = pygame.key.get_pressed()
-        if key[pygame.K_ESCAPE]:
-            if self.paused == True:
-                self.paused = False
-            else:
-                self.paused = True
-        if key[pygame.K_r]:
-            self.__init__()
+            if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+                if self.paused:
+                    self.paused = False
+                else:
+                    self.paused = True
+            if event.type == pygame.KEYUP and event.key == pygame.K_r:
+                self.__init__()
 
         return False
 
