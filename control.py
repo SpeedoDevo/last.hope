@@ -102,9 +102,7 @@ class Game(object):
             to close the window. """
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return True
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if not (self.gameOver or self.paused) and event.type == pygame.MOUSEBUTTONDOWN:
                 shoot = pygame.mixer.Sound("sound/shoot.ogg")
                 pygame.mixer.Sound.play(shoot)
                 self.lazer = self.player.fire()
@@ -112,6 +110,8 @@ class Game(object):
                 self.lazers.add(self.lazer)
                 if self.gameOver:
                     self.__init__()
+            if event.type == pygame.QUIT:
+                return True
             if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
                 if self.paused:
                     self.paused = False
@@ -159,21 +159,12 @@ class Game(object):
                 pygame.mixer.Sound.play(deathsound)
                 self.player.lives -= 1
                 self.lives.updateLives(self.player.lives)
-                print(self.player.lives)
                 if self.player.lives <= 0:
-                # if so removes self.player from the list 
+                # if so removes self.player from the list
+                    self.gameOver = True
                     self.allSprites.remove(self.player)
                     
-            if self.paused:
-            # Display some text
-                # font = pygame.font.Font(None, 36)
-                # text = font.render("paused", 1, (10, 10, 10))
-                # textpos = text.get_rect()
-                # textpos.centerx = self.background.get_rect().centerx
-                # self.background.blit(text, textpos)
-                # pygame.time.wait(10)
-                pass
-            else:
+            if not self.paused:
                 self.background.update()
                 self.lives.update()
                 self.allSprites.update()
