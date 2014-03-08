@@ -1,7 +1,7 @@
 import pygame
 import player
 import enemies
-from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY)
+from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK)
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
@@ -37,7 +37,9 @@ class Background(pygame.sprite.Sprite):
 class TextOverlay(pygame.sprite.Sprite):
     def __init__(self,string,color):
         pygame.sprite.Sprite.__init__(self)
-        self.baseImage = pygame.image.load('image/textoverlay.tga')
+        self.baseImage = pygame.Surface(pygame.display.get_surface().get_size(), flags=pygame.SRCALPHA)
+        self.baseImage.fill((0,0,0,100))
+        pygame.display.get_surface().blit(self.baseImage,(0,0))
         self.image = self.baseImage.copy()
         self.font = pygame.font.Font('image/langdon.otf', 70)
         self.text = self.font.render(string, True, color)
@@ -54,7 +56,6 @@ class TextOverlay(pygame.sprite.Sprite):
     def draw(self,screen):
         if self.isPaused:
             self.frameNum += 1
-            print(self.frameNum % 70)
             if (self.frameNum % 70) < 35:
                 screen.blit(self.image,self.screenRect)
             else:
@@ -154,7 +155,7 @@ class Game(object):
             for lazer in self.lazers:
 
                 # See if it hit a block
-                enemyHits = pygame.sprite.spritecollide(lazer, self.enemies, True)
+                enemyHits = pygame.sprite.spritecollide(lazer, self.enemies, True, pygame.sprite.collide_mask)
                 # For each block hisst, remove the bullet and add to the score
                 for enemy in enemyHits:
                     self.lazers.remove(lazer)
@@ -175,7 +176,7 @@ class Game(object):
                         self.enemies.add(self.asteroid)                       
 
             # see's if the player collides with the astriod
-            playerHit = pygame.sprite.spritecollide(self.player, self.enemies,True)
+            playerHit = pygame.sprite.spritecollide(self.player, self.enemies,True, pygame.sprite.collide_mask)
             # checks if list is empty 
             if playerHit:
                 pygame.mixer.Sound.play(self.deathSound)
@@ -186,7 +187,7 @@ class Game(object):
                     self.gameOver = True
                     self.allSprites.remove(self.player)
 
-            if not self.enemies:
+            if not self.enemies and not self.gameOver:
                 self.victory = True
                     
             self.background.update()

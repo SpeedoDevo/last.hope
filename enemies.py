@@ -40,6 +40,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.speedy = -self.speed*math.sin(math.radians(self.angle+90))
         self.rotaSpeed = random.randrange(0,7)
         self.angle = random.randrange(0,360)
+        self.image = self.baseImage.copy()
 
     def update(self):
         self.angle += self.rotaSpeed

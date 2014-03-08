@@ -14,6 +14,7 @@ class Player(pygame.sprite.Sprite):
         self.baseImage = pygame.image.load("image/ship.tga")
         self.rect = self.baseImage.get_rect()
         self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
+        self.image = self.baseImage.copy()
 
     def update(self):
         """ Update the player location. """
