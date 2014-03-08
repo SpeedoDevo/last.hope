@@ -116,7 +116,7 @@ class Game(object):
         self.deathSound = pygame.mixer.Sound("sound/death.ogg")
 
 
-        for i in range(5):
+        for i in range(15):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
             self.allSprites.add(self.asteroid)
             self.enemies.add(self.asteroid)
@@ -155,7 +155,7 @@ class Game(object):
             for lazer in self.lazers:
 
                 # See if it hit a block
-                enemyHits = pygame.sprite.spritecollide(lazer, self.enemies, True, pygame.sprite.collide_mask)
+                enemyHits = pygame.sprite.spritecollide(lazer, self.enemies, True, pygame.sprite.collide_circle)
                 # For each block hisst, remove the bullet and add to the score
                 for enemy in enemyHits:
                     self.lazers.remove(lazer)

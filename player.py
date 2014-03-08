@@ -49,3 +49,7 @@ class Lazer(pygame.sprite.Sprite):
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
+        if not (-100 < self.rect.x or self.rect.x < SCREEN_WIDTH):
+            self.kill()
+        if not (-100 < self.rect.y or self.rect.y < SCREEN_HEIGHT):
+            self.kill()
