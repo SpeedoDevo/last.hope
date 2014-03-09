@@ -1,6 +1,7 @@
 import pygame
 import player
 import enemies
+import audio
 from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK)
 
 class Background(pygame.sprite.Sprite):
@@ -23,8 +24,8 @@ class Background(pygame.sprite.Sprite):
             if key[pygame.K_d]:
                 self.rect.x -= 1
             if key[pygame.K_a]:
-                self.rect.y += 1
-            self.rect.x -= 2
+                self.rect.x += 1
+            self.rect.x -= 3
         if self.rect.x > 1000:
             self.rect.x = -1500
         if self.rect.y > 1000:
@@ -112,8 +113,7 @@ class Game(object):
         self.gameOverScreen = TextOverlay("game over", RED)
         self.winScreen = TextOverlay("victory", GREEN)
         self.victory = False
-        self.shoot = pygame.mixer.Sound("sound/shoot.ogg")
-        self.deathSound = pygame.mixer.Sound("sound/death.ogg")
+        self.audio = audio.Sounds()
 
 
         for i in range(15):
@@ -127,15 +127,13 @@ class Game(object):
 
         for event in pygame.event.get():
             if not (self.gameOver or self.paused) and event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.mixer.Sound.play(self.shoot)
+                self.audio.shootSound()
                 self.lazer = self.player.fire()
                 self.allSprites.add(self.lazer)
                 self.lazers.add(self.lazer)
-                if self.gameOver:
-                    self.__init__()
             if event.type == pygame.QUIT:
                 return True
-            if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE and not (self.gameOver or self.victory):
                 if self.paused:
                     self.paused = False
                 else:
@@ -179,7 +177,7 @@ class Game(object):
             playerHit = pygame.sprite.spritecollide(self.player, self.enemies,True, pygame.sprite.collide_mask)
             # checks if list is empty 
             if playerHit:
-                pygame.mixer.Sound.play(self.deathSound)
+                self.audio.deathSound()
                 self.player.lives -= 1
                 self.lives.updateLives(self.player.lives)
                 if self.player.lives <= 0:

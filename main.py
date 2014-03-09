@@ -1,5 +1,6 @@
 import pygame
 import control
+import audio
 from constants import (SCREEN_WIDTH, SCREEN_HEIGHT)
 
       
@@ -20,8 +21,7 @@ def main():
     
     # Create an instance of the Game class
     game = control.Game()
-    backgroundsong = pygame.mixer.Sound("sound/background.ogg")
-    pygame.mixer.Sound.play(backgroundsong)
+    audio.startBackgroundMusic()
     # Main game loop
     while not done:
         
