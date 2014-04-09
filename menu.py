@@ -1,13 +1,7 @@
-'''
-@author: avalanchy (at) google mail dot com
-@version: 0.1; python 2.7; pygame 1.9.2pre; SDL 1.2.14; MS Windows XP SP3
-@date: 2012-04-08
-@license: This document is under GNU GPL v3
-
-README on the bottom of document.
+''''
 
 @font: from http://www.dafont.com/coders-crux.font
-      more abuot license you can find in data/coders-crux/license.txt
+      more about license you can find in data/coders-crux/license.txt
 '''
 
 import pygame
@@ -24,17 +18,17 @@ if not pygame.font.get_init():
 class Menu:
     lista = []
     pola = []
-    rozmiar_fontu = 32
+    fontSize = 50
   
     font_path = 'data/coders_crux/coders_crux.ttf'
     font = pygame.font.Font
     dest_surface = pygame.Surface
     ilosc_pol = 0
-    colour_tla = (51,51,51)
-    colour_tekstu =  (255, 255, 153)
-    colour_zaznaczenia = (153,102,255)
-    pos_zaznaczenia = 0
-    pos_wklejenia = (0,0)
+    fontBackGroundColour = (51,51,51)
+    fontColour =  (255, 255, 153)
+    textHighlight = (192,192,192)
+    pos_mark = 0
+    posMenu = (0,0)
     menu_width = 0
     menu_height = 0
 
@@ -42,24 +36,24 @@ class Menu:
         tekst = ''
         pole = pygame.Surface
         pole_rect = pygame.Rect
-        zaznaczenie_rect = pygame.Rect
+        mark_rect = pygame.Rect
 
     def move_menu(self, top, left):
-        self.pos_wklejenia = (top,left) 
+        self.posMenu = (top,left) 
 
     def set_colors(self, text, selection, background):
-        self.colour_tla = background
-        self.colour_tekstu =  text
-        self.colour_zaznaczenia = selection
+        self.fontBackGroundColour = background
+        self.fontColour =  text
+        self.textHighlight = selection
         
     def set_fontsize(self,font_size):
-        self.rozmiar_fontu = font_size
+        self.fontSize = font_size
         
     def set_font(self, path):
         self.font_path = path
         
     def get_position(self):
-        return self.pos_zaznaczenia
+        return self.pos_mark
     
     def init(self, lista, dest_surface):
         self.lista = lista
@@ -69,69 +63,56 @@ class Menu:
         
     def draw(self,przesun=0):
         if przesun:
-            self.pos_zaznaczenia += przesun 
-            if self.pos_zaznaczenia == -1:
-                self.pos_zaznaczenia = self.ilosc_pol - 1
-            self.pos_zaznaczenia %= self.ilosc_pol
+            self.pos_mark += przesun 
+            if self.pos_mark == -1:
+                self.pos_mark = self.ilosc_pol - 1
+            self.pos_mark %= self.ilosc_pol
         menu = pygame.Surface((self.menu_width, self.menu_height))
-        menu.fill(self.colour_tla)
-        zaznaczenie_rect = self.pola[self.pos_zaznaczenia].zaznaczenie_rect
-        pygame.draw.rect(menu,self.colour_zaznaczenia,zaznaczenie_rect)
+        menu.fill(self.fontBackGroundColour)
+        mark_rect = self.pola[self.pos_mark].mark_rect
+        pygame.draw.rect(menu,self.textHighlight,mark_rect)
 
         for i in range(self.ilosc_pol):
             menu.blit(self.pola[i].pole,self.pola[i].pole_rect)
-        self.dest_surface.blit(menu,self.pos_wklejenia)
-        return self.pos_zaznaczenia
+        self.dest_surface.blit(menu,self.posMenu)
+        return self.pos_mark
 
     def stworz_strukture(self):
-        przesuniecie = 0
+        time = 0
         self.menu_height = 0
-        self.font = pygame.font.Font(self.font_path, self.rozmiar_fontu)
+        self.font = pygame.font.Font(self.font_path, self.fontSize)
         for i in range(self.ilosc_pol):
             self.pola.append(self.Pole())
             self.pola[i].tekst = self.lista[i]
-            self.pola[i].pole = self.font.render(self.pola[i].tekst, 1, self.colour_tekstu)
+            self.pola[i].pole = self.font.render(self.pola[i].tekst, 1, self.fontColour)
 
             self.pola[i].pole_rect = self.pola[i].pole.get_rect()
-            przesuniecie = int(self.rozmiar_fontu * 0.2)
+            time = int(self.fontSize * 0.2)
 
             height = self.pola[i].pole_rect.height
-            self.pola[i].pole_rect.left = przesuniecie
-            self.pola[i].pole_rect.top = przesuniecie+(przesuniecie*2+height)*i
+            self.pola[i].pole_rect.left = time
+            self.pola[i].pole_rect.top = time+(time*2+height)*i
 
-            width = self.pola[i].pole_rect.width+przesuniecie*2
-            height = self.pola[i].pole_rect.height+przesuniecie*2            
-            left = self.pola[i].pole_rect.left-przesuniecie
-            top = self.pola[i].pole_rect.top-przesuniecie
+            width = self.pola[i].pole_rect.width+time*2
+            height = self.pola[i].pole_rect.height+time*2            
+            left = self.pola[i].pole_rect.left-time
+            top = self.pola[i].pole_rect.top-time
 
-            self.pola[i].zaznaczenie_rect = (left,top ,width, height)
+            self.pola[i].mark_rect = (left,top ,width, height)
             if width > self.menu_width:
                     self.menu_width = width
             self.menu_height += height
         x = self.dest_surface.get_rect().centerx - self.menu_width / 2
         y = self.dest_surface.get_rect().centery - self.menu_height / 2
-        mx, my = self.pos_wklejenia
-        self.pos_wklejenia = (x+mx, y+my) 
+        mx, my = self.posMenu
+        self.posMenu = (x+mx, y+my) 
 
 
 if __name__ == "__main__":
     import sys
     surface = pygame.display.set_mode((854,480)) #0,6671875 and 0,(6) of HD resoultion
     surface.fill((51,51,51))
-    '''First you have to make an object of a *Menu class.
-    *init take 2 arguments. List of fields and destination surface.
-    Then you have a 4 configuration options:
-    *set_colors will set colors of menu (text, selection, background)
-    *set_fontsize will set size of font.
-    *set_font take a path to font you choose.
-    *move_menu is quite interseting. It is only option which you can use before 
-    and after *init statement. When you use it before you will move menu from 
-    center of your surface. When you use it after it will set constant coordinates. 
-    Uncomment every one and check what is result!
-    *draw will blit menu on the surface. Be carefull better set only -1 and 1 
-    arguments to move selection or nothing. This function will return actual 
-    position of selection.
-    *get_postion will return actual position of seletion. '''
+  
     menu = Menu()#necessary
     #menu.set_colors((255,255,255), (0,0,255), (0,0,0))#optional
     #menu.set_fontsize(64)#optional
@@ -139,7 +120,7 @@ if __name__ == "__main__":
     #menu.move_menu(100, 99)#optional
     logo = pygame.image.load('Logo.png')
     surface.blit(logo, (230, 30))
-    menu.init(['Start','Level select','Leader Board','Quit'], surface)#necessary
+    menu.init(['Start','Tutorial','Leader Board','Quit'], surface)#necessary
     #menu.move_menu(0, 0)#optional
     menu.draw()#necessary
     

@@ -7,7 +7,7 @@ class Sounds(object):
     def __init__(self):
         pygame.mixer.set_num_channels(1000)
         self.death = pygame.mixer.Sound("sound/death.ogg")
-        self.shoot = pygame.mixer.Sound("sound/shoot.ogg")
+        self.shoot = pygame.mixer.Sound("sound/shoot2.wav")
         self.shoot.set_volume(0.5)
 
     def deathSound(self):
