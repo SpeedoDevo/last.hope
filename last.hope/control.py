@@ -100,6 +100,7 @@ class Game(object):
     
     def __init__(self):
         self.score = 0
+        self.written = True
         self.paused = False
         self.gameOver = False
         self.allSprites = pygame.sprite.Group()
@@ -213,8 +214,14 @@ class Game(object):
         if self.paused:
             self.pauseScreen.draw(screen)
         if self.gameOver:
+            if self.written:
+                file = open("Scores.txt", "a")
+                file.write("Hi there yours score was " + str(self.score) + "\n") 
+                file.close()
+                self.written = False
             self.gameOverScreen.draw(screen)
         if self.victory:
+
             self.winScreen.draw(screen)
         pygame.display.flip()
 
