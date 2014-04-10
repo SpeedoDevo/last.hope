@@ -221,7 +221,11 @@ class Game(object):
                 self.written = False
             self.gameOverScreen.draw(screen)
         if self.victory:
-
+            if self.written:
+                file = open("Scores.txt", "a")
+                file.write("Hi there yours score was " + str(self.score) + "\n") 
+                file.close()
+                self.written = False
             self.winScreen.draw(screen)
         pygame.display.flip()
 
