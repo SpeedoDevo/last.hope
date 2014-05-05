@@ -90,7 +90,7 @@ class Game(object):
         class. """
 
     allSprites = None
-    enemies = None
+    enemies = 2
     lazers = None
     player = None
     
@@ -99,7 +99,7 @@ class Game(object):
     score = 0
     
     def __init__(self):
-        self.score = 0
+
         self.written = True
         self.paused = False
         self.gameOver = False
@@ -111,14 +111,14 @@ class Game(object):
         self.background = Background()
         self.lives = LivesDisplay(self.player.lives)
         self.pauseScreen = TextOverlay("paused", GREY)
-        self.gameOverScreen = TextOverlay("game over, your score:" + str(self.score), RED)
-        self.winScreen = TextOverlay("victory, your score:" + str(self.score), GREEN)
-        self.scoreshow = TextOverlay("score", GREY)
+        self.gameOverScreen = TextOverlay("game over, your score:" + str(Game.score), RED)
+        self.winScreen = TextOverlay("victory, your score:" + str(Game.score), GREEN)
+        Game.scoreshow = TextOverlay("score", GREY)
         self.victory = False
         self.audio = audio.Sounds()
 
 
-        for i in range(15):
+        for i in range(Game.enemies):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
             self.allSprites.add(self.asteroid)
             self.enemies.add(self.asteroid)
@@ -142,6 +142,8 @@ class Game(object):
                     self.paused = True
                     self.pauseScreen.resetCounter()
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
+                if self.gameOver:
+                    Game.score = 0
                 self.__init__()
 
         return False
@@ -161,7 +163,7 @@ class Game(object):
                     self.lazers.remove(lazer)
                     self.allSprites.remove(lazer)
                     if enemy.size == 0:
-                        self.score = self.score + 25
+                        Game.score = Game.score + 25
                         
                         self.asteroid = enemies.Asteroid(enemy.rect.center,1)
                         self.allSprites.add(self.asteroid)
@@ -170,7 +172,7 @@ class Game(object):
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)
                     elif enemy.size == 1 or enemy.size == 2:
-                        self.score = self.score + 50
+                        Game.score = Game.score + 50
                       
                         self.asteroid = enemies.Asteroid(enemy.rect.center,3)
                         self.allSprites.add(self.asteroid)
@@ -179,7 +181,7 @@ class Game(object):
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)                      
                     elif enemy.size == 3 or enemy.size == 4:
-                        self.score = self.score + 75
+                        Game.score = Game.score + 75
                         
             # see's if the player collides with the astriod
             playerHit = pygame.sprite.spritecollide(self.player, self.enemies,True, pygame.sprite.collide_mask)
@@ -187,7 +189,7 @@ class Game(object):
             if playerHit:
                 self.audio.deathSound()
                 self.player.lives -= 1
-                self.score = self.score - 1000
+                Game.score = Game.score - 1000
                 self.lives.updateLives(self.player.lives)
                 if self.player.lives <= 0:
                 # if so removes self.player from the list
@@ -203,29 +205,36 @@ class Game(object):
             
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
-        self.gameOverScreen = TextOverlay("game over, your score:" + str(self.score), RED)
-        self.winScreen = TextOverlay("victory, your score:" + str(self.score), GREEN)
+        self.gameOverScreen = TextOverlay("game over, your score:" + str(Game.score), RED)
+        self.winScreen = TextOverlay("victory, your score:" + str(Game.score), GREEN)
         screen.blit(self.background.image,self.background.rect)
         screen.blit(self.lives.image,self.lives.rect)
         self.allSprites.draw(screen)
         myfont = pygame.font.SysFont('image/langdon.otf', 30)
-        label = myfont.render("Score: " + str(self.score), 1, (GREY))
-        screen.blit(label, (10,30))
+        contLabel = myfont.render("Press R to continue", 1, (GREY))
+        scoreLabel = myfont.render("Score: " + str(Game.score), 1, (GREY))
+        screen.blit(scoreLabel, (10,30))
+        levelLable = myfont.render("Level: " + str(Game.enemies - 1 ), 1, (GREY))
+        screen.blit(levelLable, (10,50))
         if self.paused:
             self.pauseScreen.draw(screen)
         if self.gameOver:
             if self.written:
+                Game.enemies = 2
                 file = open("Scores.txt", "a")
-                file.write("Hi there yours score was " + str(self.score) + "\n") 
+                file.write("Hi there your score was " + str(Game.score) + "\n") 
                 file.close()
                 self.written = False
             self.gameOverScreen.draw(screen)
+            screen.blit(contLabel, (360,400))
         if self.victory:
             if self.written:
+                Game.enemies = Game.enemies + 1
                 file = open("Scores.txt", "a")
-                file.write("Hi there yours score was " + str(self.score) + "\n") 
+                file.write("Hi there your score was " + str(Game.score) + "\n") 
                 file.close()
                 self.written = False
             self.winScreen.draw(screen)
+            screen.blit(contLabel, (360,400))
         pygame.display.flip()
 
