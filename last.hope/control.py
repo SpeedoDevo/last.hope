@@ -144,6 +144,8 @@ class Game(object):
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
                 if self.gameOver:
                     Game.score = 0
+                elif self.victory == False:
+                    Game.score = Game.score - 750
                 self.__init__()
 
         return False
