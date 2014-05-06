@@ -2,7 +2,7 @@ import pygame
 import player
 import enemies
 import audio
-from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK)
+from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK, WHITE)
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
@@ -67,6 +67,20 @@ class TextOverlay(pygame.sprite.Sprite):
     def resetCounter(self):
         self.frameNum = 0
 
+class ScoreDisplay(pygame.sprite.Sprite):
+    def __init__(self, score):
+        pygame.sprite.Sprite.__init__(self)
+        self.font = pygame.font.Font('image/muzarela.ttf', 40)
+        self.text = self.font.render(str(score), True, WHITE)
+        self.rect = self.text.get_rect()
+        self.rect.right = SCREEN_WIDTH
+
+    def update(self, score):
+        self.text = self.font.render(str(score), True, WHITE)
+        self.rect = self.text.get_rect()
+        self.rect.right = SCREEN_WIDTH
+        
+
 class LivesDisplay(pygame.sprite.Sprite):
 
     def __init__(self,lives):
@@ -114,9 +128,11 @@ class Game(object):
         self.winScreen = TextOverlay("victory", GREEN)
         self.victory = False
         self.audio = audio.Sounds()
+        self.score = 0
+        self.asteroids = 3
+        self.scoreDisplay = ScoreDisplay(self.score)
 
-
-        for i in range(15):
+        for i in range(self.asteroids):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
             self.allSprites.add(self.asteroid)
             self.enemies.add(self.asteroid)
@@ -159,6 +175,7 @@ class Game(object):
                     self.lazers.remove(lazer)
                     self.allSprites.remove(lazer)
                     if enemy.size == 0:
+                        self.score += 25
                         self.asteroid = enemies.Asteroid(enemy.rect.center,1)
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)
@@ -166,12 +183,16 @@ class Game(object):
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)
                     elif enemy.size == 1 or enemy.size == 2:
+                        self.score += 50
                         self.asteroid = enemies.Asteroid(enemy.rect.center,3)
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)
                         self.asteroid = enemies.Asteroid(enemy.rect.center,4)
                         self.allSprites.add(self.asteroid)
-                        self.enemies.add(self.asteroid)                       
+                        self.enemies.add(self.asteroid)
+                    elif enemy.size == 3 or enemy.size == 4:
+                        self.score += 75
+                    
 
             # see's if the player collides with the astriod
             playerHit = pygame.sprite.spritecollide(self.player, self.enemies,True, pygame.sprite.collide_mask)
@@ -187,7 +208,8 @@ class Game(object):
 
             if not self.enemies and not self.gameOver:
                 self.victory = True
-                    
+
+            self.scoreDisplay.update(self.score)
             self.background.update()
             self.lives.update()
             self.allSprites.update()
@@ -196,6 +218,7 @@ class Game(object):
         """ Display everything to the screen for the game. """
         screen.blit(self.background.image,self.background.rect)
         screen.blit(self.lives.image,self.lives.rect)
+        screen.blit(self.scoreDisplay.text,self.scoreDisplay.rect)
         self.allSprites.draw(screen)
         if self.paused:
             self.pauseScreen.draw(screen)
