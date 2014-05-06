@@ -2,6 +2,8 @@ import pygame
 import player
 import enemies
 import audio
+import menu
+import sys
 from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK)
 
 class Background(pygame.sprite.Sprite):
@@ -141,12 +143,22 @@ class Game(object):
                 else:
                     self.paused = True
                     self.pauseScreen.resetCounter()
+
+                        
+            if event.type == pygame.KEYUP and event.key == pygame.K_q:
+               if self.gameOver or self.victory:
+                  game = menu.Startmenux()
+                  audio.stopBackgroundMusic()
+                  pygame.display.quit()
+                  sys.exit()
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
                 if self.gameOver:
                     Game.score = 0
                 elif self.victory == False:
                     Game.score = Game.score - 750
                 self.__init__()
+				
+			
 
         return False
 
@@ -213,7 +225,8 @@ class Game(object):
         screen.blit(self.lives.image,self.lives.rect)
         self.allSprites.draw(screen)
         myfont = pygame.font.SysFont('image/langdon.otf', 30)
-        contLabel = myfont.render("Press R to continue", 1, (GREY))
+        contLabel = myfont.render("Press R to continue or Q to quit ", 1, (GREY))
+		
         scoreLabel = myfont.render("Score: " + str(Game.score), 1, (GREY))
         screen.blit(scoreLabel, (10,30))
         levelLable = myfont.render("Level: " + str(Game.enemies - 1 ), 1, (GREY))
@@ -228,7 +241,7 @@ class Game(object):
                 file.close()
                 self.written = False
             self.gameOverScreen.draw(screen)
-            screen.blit(contLabel, (360,400))
+            screen.blit(contLabel, (300,400))
         if self.victory:
             if self.written:
                 Game.enemies = Game.enemies + 1
@@ -237,6 +250,6 @@ class Game(object):
                 file.close()
                 self.written = False
             self.winScreen.draw(screen)
-            screen.blit(contLabel, (360,400))
+            screen.blit(contLabel, (300,400))
         pygame.display.flip()
 
