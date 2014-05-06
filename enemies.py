@@ -41,6 +41,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.rotaSpeed = random.randrange(0,7)
         self.angle = random.randrange(0,360)
         self.image = self.baseImage.copy()
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
         self.angle += self.rotaSpeed

@@ -25,17 +25,21 @@ def main():
     # Main game loop
     while not done:
         
+        # print("prcss " + str(pygame.time.get_ticks()))
         # Process events (keystrokes, mouse clicks, etc)
         done = game.process_events()
         
+        # print("logic " + str(pygame.time.get_ticks()))
         # Update object positions, check for collisions
         game.run_logic()
         
+        # print("frame " + str(pygame.time.get_ticks()))
         # Draw the current frame
         game.display_frame(screen)
         
+        # print("fps   " + str(clock.get_fps()))
         # Pause for the next frame
-        clock.tick(70)
+        clock.tick_busy_loop(70)
         
     # Close window and exit    
     pygame.quit()

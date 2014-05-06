@@ -67,6 +67,31 @@ class TextOverlay(pygame.sprite.Sprite):
     def resetCounter(self):
         self.frameNum = 0
 
+class LevelChangeOverlay(TextOverlay):
+    def __init__(self, level, game):
+        TextOverlay.__init__(self, "level " + str(level), GREEN)
+        self.fight = TextOverlay("fight", RED)
+        self.game = game
+        self.frameNum = 0
+
+    def draw(self,screen):
+        self.frameNum += 1
+        if self.frameNum < 70:
+            screen.blit(self.image,self.screenRect)
+        elif self.frameNum < 100:
+            screen.blit(self.baseImage,self.screenRect)
+        elif self.frameNum < 140:
+            self.fight.draw(screen)
+        elif self.frameNum < 180:
+            self.game.startLevel()
+            self.game.levelChange = False
+            self.frameNum = 0
+
+    def update(self, level):
+        TextOverlay.__init__(self, "level " + str(level), GREEN)
+
+
+
 class ScoreDisplay(pygame.sprite.Sprite):
     def __init__(self, score):
         pygame.sprite.Sprite.__init__(self)
@@ -127,15 +152,29 @@ class Game(object):
         self.gameOverScreen = TextOverlay("game over", RED)
         self.winScreen = TextOverlay("victory", GREEN)
         self.victory = False
+        self.levelChange = True
         self.audio = audio.Sounds()
         self.score = 0
-        self.asteroids = 3
+        self.asteroids = 1
+        self.level = 1
+        self.levelChangeOverlay = LevelChangeOverlay(self.level, self)
         self.scoreDisplay = ScoreDisplay(self.score)
 
+
+    def startLevel(self):
+        self.allSprites.empty()
+        self.enemies.empty()
+        self.lazers.empty()
+        self.allSprites.add(self.player)
+        self.level += 1
+        self.asteroids += 3
         for i in range(self.asteroids):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
             self.allSprites.add(self.asteroid)
             self.enemies.add(self.asteroid)
+        self.levelChangeOverlay.update(self.level)
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\nlevel " + str(self.level))
+
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -207,7 +246,7 @@ class Game(object):
                     self.allSprites.remove(self.player)
 
             if not self.enemies and not self.gameOver:
-                self.victory = True
+                self.levelChange = True
 
             self.scoreDisplay.update(self.score)
             self.background.update()
@@ -226,5 +265,7 @@ class Game(object):
             self.gameOverScreen.draw(screen)
         if self.victory:
             self.winScreen.draw(screen)
-        pygame.display.flip()
+        if self.levelChange:
+            self.levelChangeOverlay.draw(screen)
+        pygame.display.update()
 
