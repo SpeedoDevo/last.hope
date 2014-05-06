@@ -13,9 +13,6 @@ if not pygame.display.get_init():
 
 if not pygame.font.get_init():
     pygame.font.init()
-def Startmenux():
-    print("FFS");
-    Startmenu()
 
 def Startmenu():
     print("FFS2");
@@ -64,7 +61,11 @@ def Startmenu():
             self.lista = lista
             self.dest_surface = dest_surface
             self.ilosc_pol = len(self.lista)
-            self.stworz_strukture()        
+            self.stworz_strukture()      
+            pygame.mixer.init()
+            pygame.mixer.set_num_channels(1000)
+            self.move = pygame.mixer.Sound("sound/select.wav")
+            self.enter = pygame.mixer.Sound("sound/death.ogg")
             
         def draw(self,przesun=0):
             if przesun:
@@ -112,34 +113,35 @@ def Startmenu():
             mx, my = self.posMenu
             self.posMenu = (x+mx, y+my) 
             
-    print("oi");
+  
     __name__= "__main__"
     if __name__ == "__main__":
         import sys
         surface = pygame.display.set_mode((854,480)) #0,6671875 and 0,(6) of HD resoultion
         surface.fill((51,51,51))
         menu = Menu()#necessary
-        #menu.set_colors((255,255,255), (0,0,255), (0,0,0))#optional
-        #menu.set_fontsize(64)#optional
-        #menu.set_font('data/couree.fon')#optional
-        #menu.move_menu(100, 99)#optional
+
         logo = pygame.image.load('Logo.png')
         surface.blit(logo, (230, 30))
         menu.init(['Start','Tutorial','Leader Board','Quit'], surface)#necessary
-        #menu.move_menu(0, 0)#optional
+      
         menu.draw()#necessary
         
         pygame.key.set_repeat(199,69)#(delay,interval)
         pygame.display.update()
         while 1:
             for event in pygame.event.get():
+                
                 if event.type == KEYDOWN:
                     if event.key == K_UP:
                         menu.draw(-1) #here is the Menu class function
+                        menu.move.play()
                     if event.key == K_DOWN:
                         menu.draw(1) #here is the Menu class function
+                        menu.move.play()
                     if event.key == K_RETURN:
-                        if menu.get_position() == 3:#here is the Menu class function
+                        menu.enter.play()
+                        if menu.get_position() == 3:#here is the Menu class function  
                             pygame.display.quit()
                             sys.exit()
                         if menu.get_position() == 0:#Starts game
@@ -148,6 +150,7 @@ def Startmenu():
                             pygame.display.quit()
                             sys.exit()
                     if event.key == K_ESCAPE:
+                        menu.enter.play()
                         pygame.display.quit()
                         sys.exit()
                     pygame.display.update()
