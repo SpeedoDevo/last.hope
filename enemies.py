@@ -34,7 +34,7 @@ class Asteroid(pygame.sprite.Sprite):
             self.angle = random.randrange(0,360)
         self.rect = pygame.rect.Rect(self.center,self.baseImage.get_size())
         if size == 0:
-            self.angle = random.randrange(50,150)/100*math.degrees(math.atan2(self.rect.center[0]-pos[0], self.rect.center[1]-pos[1]))
+            self.angle = random.randrange(80,120)/100*math.degrees(math.atan2(self.rect.center[0]-pos[0], self.rect.center[1]-pos[1]))
         self.speed = random.triangular(1.0, 4.0)
         self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
         self.speedy = -self.speed*math.sin(math.radians(self.angle+90))

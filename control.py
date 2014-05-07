@@ -2,6 +2,7 @@ import pygame
 import player
 import enemies
 import audio
+import menu
 from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK, WHITE)
 
 class Background(pygame.sprite.Sprite):
@@ -36,13 +37,13 @@ class Background(pygame.sprite.Sprite):
             self.rect.y = -1500
 
 class TextOverlay(pygame.sprite.Sprite):
-    def __init__(self,string,color):
+    def __init__(self,string,color,size=70):
         pygame.sprite.Sprite.__init__(self)
         self.baseImage = pygame.Surface(pygame.display.get_surface().get_size(), flags=pygame.SRCALPHA)
         self.baseImage.fill((0,0,0,100))
         pygame.display.get_surface().blit(self.baseImage,(0,0))
         self.image = self.baseImage.copy()
-        self.font = pygame.font.Font('image/langdon.otf', 70)
+        self.font = pygame.font.Font('image/langdon.otf', size)
         self.text = self.font.render(string, True, color)
         self.textrect = self.text.get_rect()
         self.textrect.center = (SCREEN_WIDTH/2,SCREEN_HEIGHT/2)
@@ -70,22 +71,37 @@ class TextOverlay(pygame.sprite.Sprite):
 class LevelChangeOverlay(TextOverlay):
     def __init__(self, level, game):
         TextOverlay.__init__(self, "level " + str(level), GREEN)
+        self.level = level
+        self.tutorial = [TextOverlay("wasd to move", GREEN, 50),\
+                         TextOverlay("use the mouse to aim", GREEN, 50),\
+                         TextOverlay("press the left mouse button to shoot", GREEN, 50),\
+                         TextOverlay("esc to pause", GREEN, 50),\
+                         TextOverlay("then hit q to exit to the main", GREEN, 50),\
+                         TextOverlay("press r to restart", GREEN, 50)]
         self.fight = TextOverlay("fight", RED)
         self.game = game
         self.frameNum = 0
 
     def draw(self,screen):
-        self.frameNum += 1
-        if self.frameNum < 70:
-            screen.blit(self.image,self.screenRect)
-        elif self.frameNum < 100:
-            screen.blit(self.baseImage,self.screenRect)
-        elif self.frameNum < 140:
-            self.fight.draw(screen)
-        elif self.frameNum < 180:
-            self.game.startLevel()
-            self.game.levelChange = False
-            self.frameNum = 0
+        if not self.game.paused:
+            self.frameNum += 1
+        if self.level == 1:
+            if self.frameNum < 720:
+                self.tutorial[int(self.frameNum/120)].draw(screen)
+            else:
+                self.frameNum = 0
+                self.level = 0
+        else:
+            if self.frameNum < 70:
+                screen.blit(self.image,self.screenRect)
+            elif self.frameNum < 100:
+                screen.blit(self.baseImage,self.screenRect)
+            elif self.frameNum < 140:
+                self.fight.draw(screen)
+            elif self.frameNum < 180:
+                self.game.startLevel()
+                self.game.levelChange = False
+                self.frameNum = 0
 
     def update(self, level):
         TextOverlay.__init__(self, "level " + str(level), GREEN)
@@ -137,7 +153,7 @@ class Game(object):
     gameOver = False
     # score = 0
     
-    def __init__(self):
+    def __init__(self, mainMenu):
         # self.score = 0
         self.paused = False
         self.gameOver = False
@@ -159,6 +175,7 @@ class Game(object):
         self.level = 1
         self.levelChangeOverlay = LevelChangeOverlay(self.level, self)
         self.scoreDisplay = ScoreDisplay(self.score)
+        self.mainMenu = mainMenu
 
 
     def startLevel(self):
@@ -173,7 +190,6 @@ class Game(object):
             self.allSprites.add(self.asteroid)
             self.enemies.add(self.asteroid)
         self.levelChangeOverlay.update(self.level)
-        print("\n\n\n\n\n\n\n\n\n\n\n\n\nlevel " + str(self.level))
 
 
     def process_events(self):
@@ -194,8 +210,11 @@ class Game(object):
                 else:
                     self.paused = True
                     self.pauseScreen.resetCounter()
+            if self.paused and event.type == pygame.KEYUP and event.key == pygame.K_q:
+                self.mainMenu.run()
+                self.__init__(self.mainMenu)
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                self.__init__()
+                self.__init__(self.mainMenu)
 
         return False
 
@@ -259,13 +278,13 @@ class Game(object):
         screen.blit(self.lives.image,self.lives.rect)
         screen.blit(self.scoreDisplay.text,self.scoreDisplay.rect)
         self.allSprites.draw(screen)
-        if self.paused:
-            self.pauseScreen.draw(screen)
         if self.gameOver:
             self.gameOverScreen.draw(screen)
         if self.victory:
             self.winScreen.draw(screen)
         if self.levelChange:
             self.levelChangeOverlay.draw(screen)
+        if self.paused:
+            self.pauseScreen.draw(screen)
         pygame.display.update()
 
