@@ -147,12 +147,13 @@ class Game(object):
                         
             if event.type == pygame.KEYUP and event.key == pygame.K_q:
                if self.gameOver or self.victory:
-                  game = menu.Startmenux()
+                  game = menu.Startmenu()
                   audio.stopBackgroundMusic()
                   pygame.display.quit()
                   sys.exit()
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
                 if self.gameOver:
+                    Game.enemies = 2
                     Game.score = 0
                 elif self.victory == False:
                     Game.score = Game.score - 750
@@ -220,7 +221,7 @@ class Game(object):
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
         self.gameOverScreen = TextOverlay("game over, your score:" + str(Game.score), RED)
-        self.winScreen = TextOverlay("victory, your score:" + str(Game.score), GREEN)
+        self.winScreen = TextOverlay("victory, you rock ! ", GREEN)
         screen.blit(self.background.image,self.background.rect)
         screen.blit(self.lives.image,self.lives.rect)
         self.allSprites.draw(screen)
@@ -235,9 +236,21 @@ class Game(object):
             self.pauseScreen.draw(screen)
         if self.gameOver:
             if self.written:
-                Game.enemies = 2
-                file = open("Scores.txt", "a")
-                file.write("Hi there your score was " + str(Game.score) + "\n") 
+                
+                file = open( "Scores.txt", "r" )
+                array = []
+                for line in file:
+                    array.append(int(line))
+                file.close()   
+                print(array);
+                array2 = [0,0,0,0,0,Game.score]
+                for x in range(0,5):
+                    print(x);
+                    array2[x] = array[x]
+                array2.sort(reverse = True)
+                print(array2);
+                file = open( "Scores.txt", "w" )
+                file.write(str(array2[0]) + "\n" + str(array2[1]) + "\n" + str(array2[2]) + "\n" + str(array2[3]) + "\n" + str(array2[4]) + "\n")
                 file.close()
                 self.written = False
             self.gameOverScreen.draw(screen)
@@ -245,9 +258,6 @@ class Game(object):
         if self.victory:
             if self.written:
                 Game.enemies = Game.enemies + 1
-                file = open("Scores.txt", "a")
-                file.write("Hi there your score was " + str(Game.score) + "\n") 
-                file.close()
                 self.written = False
             self.winScreen.draw(screen)
             screen.blit(contLabel, (300,400))
