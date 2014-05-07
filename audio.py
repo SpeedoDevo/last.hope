@@ -3,6 +3,9 @@ import pygame
 def startBackgroundMusic():
     pygame.mixer.Sound("sound/background.ogg").play(-1)
 
+def stopBackgroundMusic():
+    pygame.mixer.music.stop()
+
 class Sounds(object):
     def __init__(self):
         pygame.mixer.set_num_channels(1000)

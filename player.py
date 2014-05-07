@@ -15,6 +15,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.baseImage.get_rect()
         self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
         self.image = self.baseImage.copy()
+        # self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
         """ Update the player location. """
