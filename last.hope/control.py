@@ -3,8 +3,7 @@ import player
 import enemies
 import audio
 import menu
-import sys
-from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK)
+from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK, WHITE)
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
@@ -38,13 +37,13 @@ class Background(pygame.sprite.Sprite):
             self.rect.y = -1500
 
 class TextOverlay(pygame.sprite.Sprite):
-    def __init__(self,string,color):
+    def __init__(self,string,color,size=70):
         pygame.sprite.Sprite.__init__(self)
         self.baseImage = pygame.Surface(pygame.display.get_surface().get_size(), flags=pygame.SRCALPHA)
         self.baseImage.fill((0,0,0,100))
         pygame.display.get_surface().blit(self.baseImage,(0,0))
         self.image = self.baseImage.copy()
-        self.font = pygame.font.Font('image/langdon.otf', 70)
+        self.font = pygame.font.Font('image/langdon.otf', size)
         self.text = self.font.render(string, True, color)
         self.textrect = self.text.get_rect()
         self.textrect.center = (SCREEN_WIDTH/2,SCREEN_HEIGHT/2)
@@ -69,6 +68,60 @@ class TextOverlay(pygame.sprite.Sprite):
     def resetCounter(self):
         self.frameNum = 0
 
+class LevelChangeOverlay(TextOverlay):
+    def __init__(self, level, game):
+        TextOverlay.__init__(self, "level " + str(level), GREEN)
+        self.level = level
+        self.tutorial = [TextOverlay("wasd to move", GREEN, 50),\
+                         TextOverlay("use the mouse to aim", GREEN, 50),\
+                         TextOverlay("press the left mouse button to shoot", GREEN, 50),\
+                         TextOverlay("esc to pause", GREEN, 50),\
+                         TextOverlay("then hit q to exit to the main", GREEN, 50),\
+                         TextOverlay("press r to restart", GREEN, 50)]
+        self.fight = TextOverlay("fight", RED)
+        self.game = game
+        self.frameNum = 0
+
+    def draw(self,screen):
+        if not self.game.paused:
+            self.frameNum += 1
+        if self.level == 1:
+            if self.frameNum < 720:
+                self.tutorial[int(self.frameNum/120)].draw(screen)
+            else:
+                self.frameNum = 0
+                self.level = 0
+        else:
+            if self.frameNum < 70:
+                screen.blit(self.image,self.screenRect)
+            elif self.frameNum < 100:
+                screen.blit(self.baseImage,self.screenRect)
+            elif self.frameNum < 140:
+                self.fight.draw(screen)
+            elif self.frameNum < 180:
+                self.game.startLevel()
+                self.game.levelChange = False
+                self.frameNum = 0
+
+    def update(self, level):
+        TextOverlay.__init__(self, "level " + str(level), GREEN)
+
+
+
+class ScoreDisplay(pygame.sprite.Sprite):
+    def __init__(self, score):
+        pygame.sprite.Sprite.__init__(self)
+        self.font = pygame.font.Font('image/muzarela.ttf', 40)
+        self.text = self.font.render(str(score), True, WHITE)
+        self.rect = self.text.get_rect()
+        self.rect.right = SCREEN_WIDTH
+
+    def update(self, score):
+        self.text = self.font.render(str(score), True, WHITE)
+        self.rect = self.text.get_rect()
+        self.rect.right = SCREEN_WIDTH
+        
+
 class LivesDisplay(pygame.sprite.Sprite):
 
     def __init__(self,lives):
@@ -92,19 +145,19 @@ class Game(object):
         class. """
 
     allSprites = None
-    enemies = 2
+    enemies = None
     lazers = None
     player = None
     
     # Other data    
     gameOver = False
-    score = 0
+    # score = 0
     
-    def __init__(self):
-
-        self.written = True
+    def __init__(self, mainMenu):
+        # self.score = 0
         self.paused = False
         self.gameOver = False
+        self.written = True
         self.allSprites = pygame.sprite.Group()
         self.lazers = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
@@ -113,17 +166,32 @@ class Game(object):
         self.background = Background()
         self.lives = LivesDisplay(self.player.lives)
         self.pauseScreen = TextOverlay("paused", GREY)
-        self.gameOverScreen = TextOverlay("game over, your score:" + str(Game.score), RED)
-        self.winScreen = TextOverlay("victory, your score:" + str(Game.score), GREEN)
-        Game.scoreshow = TextOverlay("score", GREY)
+        self.gameOverScreen = TextOverlay("game over", RED)
+        self.winScreen = TextOverlay("victory", GREEN)
         self.victory = False
+        self.levelChange = True
         self.audio = audio.Sounds()
+        self.score = 0
+        self.asteroids = 1
+        self.level = 1
+        self.levelChangeOverlay = LevelChangeOverlay(self.level, self)
+        self.scoreDisplay = ScoreDisplay(self.score)
+        self.mainMenu = mainMenu
 
 
-        for i in range(Game.enemies):
+    def startLevel(self):
+        self.allSprites.empty()
+        self.enemies.empty()
+        self.lazers.empty()
+        self.allSprites.add(self.player)
+        self.level += 1
+        self.asteroids += 3
+        for i in range(self.asteroids):
             self.asteroid = enemies.Asteroid(self.player.rect.center,0)
             self.allSprites.add(self.asteroid)
             self.enemies.add(self.asteroid)
+        self.levelChangeOverlay.update(self.level)
+
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -143,23 +211,11 @@ class Game(object):
                 else:
                     self.paused = True
                     self.pauseScreen.resetCounter()
-
-                        
-            if event.type == pygame.KEYUP and event.key == pygame.K_q:
-               if self.gameOver or self.victory:
-                  game = menu.Startmenu()
-                  audio.stopBackgroundMusic()
-                  pygame.display.quit()
-                  sys.exit()
+            if self.paused and event.type == pygame.KEYUP and event.key == pygame.K_q:
+                self.mainMenu.run()
+                self.__init__(self.mainMenu)
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                if self.gameOver:
-                    Game.enemies = 2
-                    Game.score = 0
-                elif self.victory == False:
-                    Game.score = Game.score - 750
-                self.__init__()
-				
-			
+                self.__init__(self.mainMenu)
 
         return False
 
@@ -178,8 +234,7 @@ class Game(object):
                     self.lazers.remove(lazer)
                     self.allSprites.remove(lazer)
                     if enemy.size == 0:
-                        Game.score = Game.score + 25
-                        
+                        self.score += 25
                         self.asteroid = enemies.Asteroid(enemy.rect.center,1)
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)
@@ -187,24 +242,23 @@ class Game(object):
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)
                     elif enemy.size == 1 or enemy.size == 2:
-                        Game.score = Game.score + 50
-                      
+                        self.score += 50
                         self.asteroid = enemies.Asteroid(enemy.rect.center,3)
                         self.allSprites.add(self.asteroid)
                         self.enemies.add(self.asteroid)
                         self.asteroid = enemies.Asteroid(enemy.rect.center,4)
                         self.allSprites.add(self.asteroid)
-                        self.enemies.add(self.asteroid)                      
+                        self.enemies.add(self.asteroid)
                     elif enemy.size == 3 or enemy.size == 4:
-                        Game.score = Game.score + 75
-                        
+                        self.score += 75
+                    
+
             # see's if the player collides with the astriod
             playerHit = pygame.sprite.spritecollide(self.player, self.enemies,True, pygame.sprite.collide_mask)
             # checks if list is empty 
             if playerHit:
                 self.audio.deathSound()
                 self.player.lives -= 1
-                Game.score = Game.score - 1000
                 self.lives.updateLives(self.player.lives)
                 if self.player.lives <= 0:
                 # if so removes self.player from the list
@@ -212,38 +266,28 @@ class Game(object):
                     self.allSprites.remove(self.player)
 
             if not self.enemies and not self.gameOver:
-                self.victory = True
-                    
+                self.levelChange = True
+
+            self.scoreDisplay.update(self.score)
             self.background.update()
             self.lives.update()
             self.allSprites.update()
             
     def display_frame(self, screen):
         """ Display everything to the screen for the game. """
-        self.gameOverScreen = TextOverlay("game over, your score:" + str(Game.score), RED)
-        self.winScreen = TextOverlay("victory, you rock ! ", GREEN)
         screen.blit(self.background.image,self.background.rect)
         screen.blit(self.lives.image,self.lives.rect)
+        screen.blit(self.scoreDisplay.text,self.scoreDisplay.rect)
         self.allSprites.draw(screen)
-        myfont = pygame.font.SysFont('image/langdon.otf', 30)
-        contLabel = myfont.render("Press R to continue or Q to quit ", 1, (GREY))
-		
-        scoreLabel = myfont.render("Score: " + str(Game.score), 1, (GREY))
-        screen.blit(scoreLabel, (10,30))
-        levelLable = myfont.render("Level: " + str(Game.enemies - 1 ), 1, (GREY))
-        screen.blit(levelLable, (10,50))
-        if self.paused:
-            self.pauseScreen.draw(screen)
         if self.gameOver:
             if self.written:
-                
                 file = open( "Scores.txt", "r" )
                 array = []
                 for line in file:
                     array.append(int(line))
                 file.close()   
                 print(array);
-                array2 = [0,0,0,0,0,Game.score]
+                array2 = [0,0,0,0,0,self.score]
                 for x in range(0,5):
                     print(x);
                     array2[x] = array[x]
@@ -254,12 +298,11 @@ class Game(object):
                 file.close()
                 self.written = False
             self.gameOverScreen.draw(screen)
-            screen.blit(contLabel, (300,400))
         if self.victory:
-            if self.written:
-                Game.enemies = Game.enemies + 1
-                self.written = False
             self.winScreen.draw(screen)
-            screen.blit(contLabel, (300,400))
-        pygame.display.flip()
+        if self.levelChange:
+            self.levelChangeOverlay.draw(screen)
+        if self.paused:
+            self.pauseScreen.draw(screen)
+        pygame.display.update()
 
