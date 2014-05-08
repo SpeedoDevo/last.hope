@@ -154,9 +154,10 @@ class Game(object):
     # score = 0
     
     def __init__(self, mainMenu):
-        # self.score = 0
+        self.score = 0
         self.paused = False
         self.gameOver = False
+        self.written = True
         self.allSprites = pygame.sprite.Group()
         self.lazers = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
@@ -169,14 +170,12 @@ class Game(object):
         self.winScreen = TextOverlay("victory", GREEN)
         self.victory = False
         self.levelChange = True
-        self.audio = audio.Sounds()
-        self.score = 0
         self.asteroids = 1
         self.level = 1
         self.levelChangeOverlay = LevelChangeOverlay(self.level, self)
         self.scoreDisplay = ScoreDisplay(self.score)
         self.mainMenu = mainMenu
-
+        self.audio = audio.Sounds();
 
     def startLevel(self):
         self.allSprites.empty()
@@ -279,6 +278,23 @@ class Game(object):
         screen.blit(self.scoreDisplay.text,self.scoreDisplay.rect)
         self.allSprites.draw(screen)
         if self.gameOver:
+            if self.written:
+                file = open( "Scores.txt", "r" )
+                array = []
+                for line in file:
+                    array.append(int(line))
+                file.close()   
+                print(array);
+                array2 = [0,0,0,0,0,self.score]
+                for x in range(0,5):
+                    print(x);
+                    array2[x] = array[x]
+                array2.sort(reverse = True)
+                print(array2);
+                file = open( "Scores.txt", "w" )
+                file.write(str(array2[0]) + "\n" + str(array2[1]) + "\n" + str(array2[2]) + "\n" + str(array2[3]) + "\n" + str(array2[4]) + "\n")
+                file.close()
+                self.written = False
             self.gameOverScreen.draw(screen)
         if self.victory:
             self.winScreen.draw(screen)
