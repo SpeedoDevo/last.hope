@@ -3,6 +3,7 @@ import player
 import enemies
 import audio
 import menu
+import eztext
 from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK, WHITE)
 
 class Background(pygame.sprite.Sprite):
@@ -86,7 +87,7 @@ class LevelChangeOverlay(TextOverlay):
         if not self.game.paused:
             self.frameNum += 1
         if self.level == 1:
-            if self.frameNum < 720:
+            if self.frameNum < 10: #720
                 self.tutorial[int(self.frameNum/120)].draw(screen)
             else:
                 self.frameNum = 0
@@ -153,7 +154,7 @@ class Game(object):
     gameOver = False
     # score = 0
     
-    def __init__(self, mainMenu):
+    def __init__(self, mainMenu, bg):
         self.score = 0
         self.paused = False
         self.gameOver = False
@@ -163,11 +164,10 @@ class Game(object):
         self.enemies = pygame.sprite.Group()
         self.player = player.Player()
         self.allSprites.add(self.player)
-        self.background = Background()
+        self.background = bg
         self.lives = LivesDisplay(self.player.lives)
         self.pauseScreen = TextOverlay("paused", GREY)
         self.gameOverScreen = TextOverlay("game over", RED)
-        self.winScreen = TextOverlay("victory", GREEN)
         self.victory = False
         self.levelChange = True
         self.asteroids = 1
@@ -175,7 +175,8 @@ class Game(object):
         self.levelChangeOverlay = LevelChangeOverlay(self.level, self)
         self.scoreDisplay = ScoreDisplay(self.score)
         self.mainMenu = mainMenu
-        self.audio = audio.Sounds();
+        self.audio = audio.Sounds()
+        self.input = eztext.Input(x=330,y=320,font=self.scoreDisplay.font,color=WHITE,prompt="name: ")
 
     def startLevel(self):
         self.allSprites.empty()
@@ -195,7 +196,10 @@ class Game(object):
         """ Process all of the events. Return a "True" if we need
             to close the window. """
 
-        for event in pygame.event.get():
+
+        events = pygame.event.get()
+        if self.gameOver: self.input.update(events)
+        for event in events:
             if not (self.gameOver or self.paused) and event.type == pygame.MOUSEBUTTONDOWN:
                 self.audio.shootSound()
                 self.lazer = self.player.fire()
@@ -211,9 +215,12 @@ class Game(object):
                     self.pauseScreen.resetCounter()
             if self.paused and event.type == pygame.KEYUP and event.key == pygame.K_q:
                 self.mainMenu.run()
-                self.__init__(self.mainMenu)
-            if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                self.__init__(self.mainMenu)
+                self.__init__(self.mainMenu, self.background)
+            if event.type == pygame.KEYUP and event.key == pygame.K_r and not self.gameOver:
+                self.__init__(self.mainMenu, self.background)
+            if self.gameOver and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+                self.mainMenu.hsTable.run()
+                self.__init__(self.mainMenu, self.background)
 
         return False
 
@@ -278,24 +285,8 @@ class Game(object):
         screen.blit(self.scoreDisplay.text,self.scoreDisplay.rect)
         self.allSprites.draw(screen)
         if self.gameOver:
-            if self.written:
-                file = open( "Scores.txt", "r" )
-                array = []
-                for line in file:
-                    array.append(int(line))
-                file.close()   
-                print(array);
-                array2 = [0,0,0,0,0,self.score]
-                for x in range(0,5):
-                    print(x);
-                    array2[x] = array[x]
-                array2.sort(reverse = True)
-                print(array2);
-                file = open( "Scores.txt", "w" )
-                file.write(str(array2[0]) + "\n" + str(array2[1]) + "\n" + str(array2[2]) + "\n" + str(array2[3]) + "\n" + str(array2[4]) + "\n")
-                file.close()
-                self.written = False
             self.gameOverScreen.draw(screen)
+            self.input.draw(screen)
         if self.victory:
             self.winScreen.draw(screen)
         if self.levelChange:

@@ -25,7 +25,7 @@ def main():
 
     mainMenu = menu.Menu(screen, clock)
     mainMenu.run()
-    game = control.Game(mainMenu)
+    game = control.Game(mainMenu, mainMenu.bg)
     # Main game loop
     while not done:
         # Process events (keystrokes, mouse clicks, etc)

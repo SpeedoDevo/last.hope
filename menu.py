@@ -1,7 +1,7 @@
 import pygame
 import sys
 import control
-import leaderbord
+import highscore
 from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK, WHITE)
 
 
@@ -15,6 +15,7 @@ class Menu(pygame.sprite.Sprite):
         self.screenRect = (0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
         self.pos = 0
         self.bg = control.Background()
+        self.hsTable = highscore.ScoreTable(screen, clock, self.bg)
 
     def draw(self,screen):
         self.bg.update()
@@ -28,7 +29,6 @@ class Menu(pygame.sprite.Sprite):
             self.textrect = self.text.get_rect()
             self.textrect.center = (SCREEN_WIDTH/2,(200+i*45))
             self.screen.blit(self.text,self.textrect)
-        # screen.blit(self.image,self.screenRect)
         pygame.display.update()
 
 
@@ -54,8 +54,7 @@ class Menu(pygame.sprite.Sprite):
             if selection == 0:
                 return
             elif selection == 1:
-                scoreMenu = leaderbord.Menu(self.screen,self.clock)
-                scoreMenu.run()                
+                self.hsTable.run()
             elif selection == 2:
                 pygame.quit()
                 sys.exit(0)
