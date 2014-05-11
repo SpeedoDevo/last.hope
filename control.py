@@ -219,6 +219,7 @@ class Game(object):
             if event.type == pygame.KEYUP and event.key == pygame.K_r and not self.gameOver:
                 self.__init__(self.mainMenu, self.background)
             if self.gameOver and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+                self.mainMenu.hsTable.submitScore(self.input.value,self.score)
                 self.mainMenu.hsTable.run()
                 self.__init__(self.mainMenu, self.background)
 

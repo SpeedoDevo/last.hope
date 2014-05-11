@@ -35,9 +35,9 @@ class Menu(pygame.sprite.Sprite):
     def update(self):
         self.pos %= 3
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit(0)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 self.pos += 1
             if event.type == pygame.KEYDOWN and event.key == pygame.K_w:

@@ -1,6 +1,7 @@
 import pygame
 import sys
 import collections
+import pickle
 from constants import (SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, GREY, BLACK, WHITE)
 
 class ScoreTable(pygame.sprite.Sprite):
@@ -11,14 +12,10 @@ class ScoreTable(pygame.sprite.Sprite):
         self.titleRect = self.title.get_rect()
         self.titleRect.center = (SCREEN_WIDTH/2,50)
         self.scoreFont = pygame.font.Font('image/muzarela.ttf', 30)
-        # self.names = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n"]
-        # self.scores = [9 , 8 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 , 0 , 0 , 0 , 0 ]
-        # self.hs = {"names": self.names, "scores": self.scores}
-        self.h = {13:"a", 12:"b", 11:"c", 10:"d", 9:"e", 8:"f", 7:"g", 6:"h", 5:"i", 4:"j", 3:"k", 2:"l", 1:"m"}
-        self.hs = collections.OrderedDict(sorted(self.h.items(), key=lambda t: t[0], reverse=True))
         self.clock = clock
         self.screen = screen
         self.bg = bg
+        self.load()
 
     def draw(self,screen):
         self.bg.update()
@@ -47,4 +44,21 @@ class ScoreTable(pygame.sprite.Sprite):
             self.draw(self.screen)
             if self.update(): return
 
-# def getLowest
+    def getLowest(self):
+        return min(list(self.hs.keys()))
+
+    def submitScore(self,name,score):
+        self.hs.popitem()
+        self.hs[score] = name
+        self.hs = collections.OrderedDict(sorted(self.hs.items(), reverse=True))
+        self.save()
+
+    def save(self):
+        pickle.dump(self.hs, open("hs.dat", "wb"), 2)
+
+    def load(self):
+        try:
+            self.hs = pickle.load(open("hs.dat", "rb"))
+        except:
+            temp = {50000:"a", 40000:"b", 30000:"c", 20000:"d", 10000:"e", 9000:"f", 8000:"g", 7000:"h", 6000:"i", 5000:"j", 4000:"k", 3000:"l", 2000:"m"}
+            self.hs = collections.OrderedDict(sorted(temp.items(), reverse=True))
