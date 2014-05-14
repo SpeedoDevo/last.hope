@@ -13,9 +13,9 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.baseImage = pygame.image.load("image/ship.tga")
         self.rect = self.baseImage.get_rect()
+        # center
         self.rect.x,self.rect.y = (SCREEN_WIDTH/2 - 90),(SCREEN_HEIGHT/2 - 90)
         self.image = self.baseImage.copy()
-        # self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
         """ Update the player location. """
@@ -30,6 +30,7 @@ class Player(pygame.sprite.Sprite):
         if key[pygame.K_a] and self.rect.center[0] > 0: # left key
             self.rect.x -= self.speed # move left
 
+        # rotate
         self.angle = math.degrees(math.atan2(self.rect.center[0]-mousePosition[0], self.rect.center[1]-mousePosition[1]))
         self.image,self.rect = helper.rot_center(self.baseImage, self.rect, self.angle)
 
@@ -38,10 +39,10 @@ class Player(pygame.sprite.Sprite):
 
 
 class Lazer(pygame.sprite.Sprite):
-    speed = 5
 
     def __init__(self, angle, center):
         pygame.sprite.Sprite.__init__(self)
+        self.speed = 5
         self.image = pygame.image.load("image/lazer.tga")
         self.rect = pygame.rect.Rect(center,self.image.get_size())
         self.speedx =  self.speed*math.cos(math.radians(angle+90))
@@ -50,6 +51,7 @@ class Lazer(pygame.sprite.Sprite):
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
+        # kill if out of screen
         if not (-100 < self.rect.x or self.rect.x < SCREEN_WIDTH):
             self.kill()
         if not (-100 < self.rect.y or self.rect.y < SCREEN_HEIGHT):
