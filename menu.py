@@ -12,14 +12,17 @@ class Menu(pygame.sprite.Sprite):
         self.clock = clock
         self.font = pygame.font.Font('image/langdon.otf', 40)
         self.options = ["start game", "highscores", "quit"]
-        self.screenRect = (0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
         self.pos = 0
         self.bg = control.Background()
         self.hsTable = highscore.ScoreTable(screen, clock, self.bg)
+        self.logo = pygame.image.load("image/logo.tga")
+        self.logoRect = self.logo.get_rect()
+        self.logoRect.center = (SCREEN_WIDTH/2,125)
 
     def draw(self,screen):
         self.bg.update()
         screen.blit(self.bg.image,self.bg.rect)
+        screen.blit(self.logo,self.logoRect)
         for i in range(len(self.options)):
             if i == self.pos:
                 color = WHITE
@@ -27,7 +30,7 @@ class Menu(pygame.sprite.Sprite):
                 color = GREY
             self.text = self.font.render(self.options[i], True, color)
             self.textrect = self.text.get_rect()
-            self.textrect.center = (SCREEN_WIDTH/2,(200+i*45))
+            self.textrect.center = (SCREEN_WIDTH/2,(250+i*45))
             self.screen.blit(self.text,self.textrect)
         pygame.display.update()
 
@@ -38,11 +41,11 @@ class Menu(pygame.sprite.Sprite):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(0)
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+            if event.type == pygame.KEYDOWN and (event.key == pygame.K_s or event.key == pygame.K_DOWN):
                 self.pos += 1
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+            if event.type == pygame.KEYDOWN and (event.key == pygame.K_w or event.key == pygame.K_UP):
                 self.pos -= 1
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
                 return self.pos
             return -1
 
