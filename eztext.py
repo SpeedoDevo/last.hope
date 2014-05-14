@@ -1,4 +1,4 @@
-# input lib
+# text input library from http://pygame.org/project-EzText-920-.html
 from pygame.locals import *
 import pygame, string
 
