@@ -39,7 +39,7 @@ class ScoreTable(pygame.sprite.Sprite):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(0)
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
                 return True
             return False
 
@@ -58,6 +58,9 @@ class ScoreTable(pygame.sprite.Sprite):
         self.last = score
         self.hs = collections.OrderedDict(sorted(self.hs.items(), reverse=True))
         self.save()
+
+    def noHS(self):
+        self.last = None
 
     def save(self):
         pickle.dump(self.hs, open("hs.dat", "wb"), 2)

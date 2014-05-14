@@ -78,7 +78,8 @@ class LevelChangeOverlay(TextOverlay):
                          TextOverlay("press the left mouse button to shoot", GREEN, 50),\
                          TextOverlay("esc to pause", GREEN, 50),\
                          TextOverlay("then hit q to exit to the main", GREEN, 50),\
-                         TextOverlay("press r to restart", GREEN, 50)]
+                         TextOverlay("press r to restart", GREEN, 50), \
+                         TextOverlay("press k next time to skip the tutorial", RED, 50)]
         self.fight = TextOverlay("fight", RED)
         self.game = game
         self.frameNum = 0
@@ -87,7 +88,7 @@ class LevelChangeOverlay(TextOverlay):
         if not self.game.paused:
             self.frameNum += 1
         if self.level == 1:
-            if self.frameNum < 10: #720
+            if self.frameNum < 840:
                 self.tutorial[int(self.frameNum/120)].draw(screen)
             else:
                 self.frameNum = 0
@@ -107,6 +108,9 @@ class LevelChangeOverlay(TextOverlay):
     def update(self, level):
         TextOverlay.__init__(self, "level " + str(level), GREEN)
 
+    def skipTutorial(self):
+        self.frameNum = 0
+        self.level = 0
 
 
 class ScoreDisplay(pygame.sprite.Sprite):
@@ -154,7 +158,7 @@ class Game(object):
     gameOver = False
     # score = 0
     
-    def __init__(self, mainMenu, bg):
+    def __init__(self, mainMenu, bg, lastInput=""):
         self.score = 0
         self.paused = False
         self.gameOver = False
@@ -177,6 +181,7 @@ class Game(object):
         self.mainMenu = mainMenu
         self.audio = audio.Sounds()
         self.input = eztext.Input(x=330,y=320,font=self.scoreDisplay.font,color=WHITE,prompt="name: ")
+        self.input.value = lastInput
 
     def startLevel(self):
         self.allSprites.empty()
@@ -215,13 +220,18 @@ class Game(object):
                     self.pauseScreen.resetCounter()
             if self.paused and event.type == pygame.KEYUP and event.key == pygame.K_q:
                 self.mainMenu.run()
-                self.__init__(self.mainMenu, self.background)
+                self.__init__(self.mainMenu, self.background, self.input.value)
             if event.type == pygame.KEYUP and event.key == pygame.K_r and not self.gameOver:
-                self.__init__(self.mainMenu, self.background)
+                self.__init__(self.mainMenu, self.background, self.input.value)
             if self.gameOver and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
-                if self.score > self.mainMenu.hsTable.getLowest(): self.mainMenu.hsTable.submitScore(self.input.value,self.score)
+                if self.score > self.mainMenu.hsTable.getLowest():
+                    self.mainMenu.hsTable.submitScore(self.input.value,self.score)
+                else:
+                    self.mainMenu.hsTable.noHS()
                 self.mainMenu.hsTable.run()
-                self.__init__(self.mainMenu, self.background)
+                self.__init__(self.mainMenu, self.background, self.input.value)
+            if self.levelChange and event.type == pygame.KEYUP and event.key == pygame.K_k:
+                self.levelChangeOverlay.skipTutorial()
 
         return False
 
