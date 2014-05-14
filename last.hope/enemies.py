@@ -6,7 +6,7 @@ from constants import (SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
 class Asteroid(pygame.sprite.Sprite):
-""" This class represents the Asteroid. """
+    """ This class represents the Asteroid. """
     def __init__(self,pos,size):
         """ Called every time a new asteroid is made """
         pygame.sprite.Sprite.__init__(self)
@@ -23,8 +23,8 @@ class Asteroid(pygame.sprite.Sprite):
                 self.center = [random.randrange(-300,SCREEN_WIDTH+300),random.randrange(-300,0)]
             elif self.where == 4:
                 self.center = [random.randrange(SCREEN_HEIGHT,SCREEN_HEIGHT+300),random.randrange(-300,SCREEN_HEIGHT+300)]
-      """ changes images depending on size"""
-      if size == 1:
+        if size == 1:
+            """ changes images depending on size """
             self.baseImage = pygame.image.load("image/asteroid10.tga")
         if size == 2:
             self.baseImage = pygame.image.load("image/asteroid11.tga")
@@ -33,12 +33,12 @@ class Asteroid(pygame.sprite.Sprite):
         if size == 4:
             self.baseImage = pygame.image.load("image/asteroid21.tga")
         if size == 1 or size == 2 or size == 3 or size == 4:
-        """Creates a random angle for the image to be turned """
+            """ Creates a random angle for the image to be turned """
             self.center = pos
             self.angle = random.randrange(0,360)
         self.rect = pygame.rect.Rect(self.center,self.baseImage.get_size())
         if size == 0:
-        """ Creates the speed and and angle if it is the biggest size as this has not been done before"""
+            """ Creates the speed and and angle if it is the biggest size as this has not been done before"""
             self.angle = random.randrange(80,120)/100*math.degrees(math.atan2(self.rect.center[0]-pos[0], self.rect.center[1]-pos[1]))
         self.speed = random.triangular(1.0, 4.0)
         self.speedx =  self.speed*math.cos(math.radians(self.angle+90))
