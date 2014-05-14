@@ -223,7 +223,7 @@ class Game(object):
                 self.__init__(self.mainMenu, self.background, self.input.value)
             if event.type == pygame.KEYUP and event.key == pygame.K_r and not self.gameOver:
                 self.__init__(self.mainMenu, self.background, self.input.value)
-            if self.gameOver and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+            if self.gameOver and ((event.type == pygame.KEYUP and event.key == pygame.K_RETURN) or event.type == pygame.MOUSEBUTTONDOWN):
                 if self.score > self.mainMenu.hsTable.getLowest():
                     self.mainMenu.hsTable.submitScore(self.input.value,self.score)
                 else:
